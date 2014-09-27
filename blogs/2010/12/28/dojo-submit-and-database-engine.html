@@ -1,0 +1,235 @@
+
+
+<!doctype html>
+<html xmlns:wb=“http://open.weibo.com/wb”>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge;chrome=1' />
+    <meta name="keywords" content="jiang peng,姜鹏,warmwind,dojo,InnoDB,maven,MyISAM,mysql,ssh">
+    <link href="/stylesheets/all.css" rel="stylesheet" type="text/css" />
+    <script src="/javascripts/application.js" type="text/javascript"></script>
+    <script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js" type="text/javascript" charset="utf-8"></script>
+    <title>Dojo submit and Database Engine - Jiang Peng</title>
+
+  </head>
+  <body>
+    <header class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/"><img alt="" height="60" src="http://gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg?s=60" width="60" />
+            <span class="title">Jiang Peng's Warm Wind</span>
+          </a>
+          <ul class="nav nav-pills pull-right">
+              <li class='active'><a href="/index.html">所有文章</a></li>
+  <li><a href="/apps.html">小程序们</a></li>
+  <li><a href="/about.html">关于我</a></li>
+  <li class='rss'><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li>
+
+          </ul>
+        </div>
+      </div>
+    </header>
+    <div class="container main-content">
+        <article class='article-container clearfix'>
+    <h1>Dojo submit and Database Engine</h1>
+    <div class="more-info clearfix">
+      <div class="date pull-left">28 Dec 2010</div>
+      <ul class= 'pull-left tags-container'>
+    <li class='tag'><a href="/blogs/tags/dojo.html">dojo</a></li>
+    <li class='tag'><a href="/blogs/tags/innodb.html">InnoDB</a></li>
+    <li class='tag'><a href="/blogs/tags/maven.html">maven</a></li>
+    <li class='tag'><a href="/blogs/tags/myisam.html">MyISAM</a></li>
+    <li class='tag'><a href="/blogs/tags/mysql.html">mysql</a></li>
+    <li class='tag'><a href="/blogs/tags/ssh.html">ssh</a></li>
+</ul>
+
+      <!-- JiaThis Button BEGIN -->
+      <div class="jiathis_style_24x24 pull-right">
+        <a class="jiathis_button_qzone"></a>
+        <a class="jiathis_button_tsina"></a>
+        <a class="jiathis_button_tqq"></a>
+        <a class="jiathis_button_weixin"></a>
+        <a class="jiathis_button_renren"></a>
+      </div>
+      <script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1358051221670389" charset="utf-8"></script>
+      <!-- JiaThis Button END -->
+    </div>
+    <div class="blog-content"><p>今天给前面纯javascript写的Magic Grid增加一个排行的功能，也就是在玩家完成游戏后，可以输入姓名并提交，可以查看当前排名Top10的玩家名称和分数。</p>
+
+<p>功能上并不复杂，不过当前工作的项目是J2EE的，那么就使用相关的技术来实现这个小功能：SSH+MySql+Maven。</p>
+
+<p>整个过程中遇到了两个问题印象比较深刻。</p>
+
+<h3>使用Ajax提交结果</h3>
+
+<p>Struts常用的Ajax插件有下面几种：</p>
+
+<blockquote>
+<ul>
+<li><em>Ajax Parts</em> The <a href="http://code.google.com/p/struts2ajaxpartstaglibplugin/">AjaxParts Taglib (APT)</a> is a component of the Java Web Parts (JWP) project <a href="http://javawebparts.sourceforge.net/">http://javawebparts.sourceforge.net</a> that allows for 100% declarative (read: no Javascript coding required!) AJAX functionality within a Java-based webapp.</li>
+<li><em>Dojo</em> The <a href="http://struts.apache.org/2.0.14/docs/ajax-tags.html">Ajax Tags Dojo Plugin</a> was represented as a theme for Struts 2.0. For Struts 2.1, the Dojo tags are bundled as a plugin.</li>
+<li><em>YUI</em> The <a href="http://cwiki.apache.org/S2PLUGINS/yui-plugin.html">Yahoo User Interface (YUI) Plugin</a>has only a few tags are available so far, but the YUI tags tend to be easier to use than the Dojo versions.</li>
+</ul>
+</blockquote>
+
+<p>对我这个只是提交的小应用来说，几种都差不多，网上似乎关于Dojo的例子不少，所以选用了struts-dojo-tags。使用起来也非常简单，</p>
+
+<ol>
+<li>在pom.xml中加入依赖</li>
+</ol>
+<div class="highlight xml"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5</pre></td><td class="code"><pre>  <span class="nt">&lt;dependency&gt;</span>
+         <span class="nt">&lt;groupId&gt;</span>org.apache.struts<span class="nt">&lt;/groupId&gt;</span>
+         <span class="nt">&lt;artifactId&gt;</span>struts2-dojo-plugin<span class="nt">&lt;/artifactId&gt;</span>
+         <span class="nt">&lt;version&gt;</span>2.2.1<span class="nt">&lt;/version&gt;</span>
+   <span class="nt">&lt;/dependency&gt;</span>
+</pre></td></tr></tbody></table>
+</div>
+
+<ol>
+<li>在jsp文件头部添加下面一行语句</li>
+</ol>
+<div class="highlight php"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1</pre></td><td class="code"><pre>  <span class="err">&lt;</span>%@ taglib prefix="sx" uri="/struts-dojo-tags" %&gt;
+</pre></td></tr></tbody></table>
+</div>
+
+<p>下面是我第一次写的用来提交的表单代码</p>
+<div class="highlight xml"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9</pre></td><td class="code"><pre><span class="nt">&lt;s:form</span> <span class="na">action=</span><span class="s">"submit"</span> <span class="na">method=</span><span class="s">"post"</span> <span class="na">theme=</span><span class="s">"simple"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;sx:div</span> <span class="na">id=</span><span class="s">"rank"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;s:label</span> <span class="na">value=</span><span class="s">"Input your name: "</span> <span class="na">for=</span><span class="s">"rankBean.name"</span><span class="nt">/&gt;</span>
+      <span class="nt">&lt;s:textfield</span> <span class="na">key=</span><span class="s">"rankBean.name"</span><span class="nt">/&gt;</span>
+      <span class="nt">&lt;s:hidden</span> <span class="na">key=</span><span class="s">"rankBean.score"</span><span class="nt">/&gt;</span>
+      <span class="nt">&lt;img</span> <span class="na">id=</span><span class="s">"loadingImage"</span> <span class="na">src=</span><span class="s">"images/loading.gif"</span> <span class="na">style=</span><span class="s">"display:none"</span><span class="nt">/&gt;</span>
+      <span class="nt">&lt;sx:submit</span> <span class="na">targets=</span><span class="s">"rank"</span> <span class="na">showLoadingText=</span><span class="s">"false"</span> <span class="na">indicator=</span><span class="s">"loadingImage"</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;/sx:div&gt;</span>
+<span class="nt">&lt;/s:form&gt;</span>
+</pre></td></tr></tbody></table>
+</div>
+
+<p>sx:submit设定了用来接收响应的元素是id为rank的div，在得到响应之前显示一个loading image。
+这个“照搬”Struts网站上关于<a href="http://struts.apache.org/2.0.14/docs/dojo-submit.html">Dojo submit</a>使用的代码看似没有问题，但是很tricky的是每次点击submit按钮都会同时发送两个相同的post请求。
+纠缠了很久才发现，我使用的并不正确，其中id为rank的div不能使用sx:div, 而只要改为struts本身提供的s:div便只会发送一个请求了。</p>
+
+<p>但是现在仍然还不知道这样解决的原因何在，网上只找到了一篇相关的blog，只有一个评论──“won&rsquo;t fix”。有待后续找到答案，也诚恳希望有相关经验的同志们给予答复。</p>
+
+<h3>Database Engine</h3>
+
+<p>在Spring框架内写Hibernate的测试，利用Spring的Transaction机制，可以方便的保持测试数据的整洁。
+测试代码如下</p>
+<div class="highlight java"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28</pre></td><td class="code"><pre><span class="o">&lt;</span><span class="n">pre</span> <span class="kd">class</span><span class="err">="</span><span class="nc">brush</span><span class="o">:</span><span class="n">java</span><span class="s">"&gt;@TransactionConfiguration(transactionManager = "</span><span class="n">transactionManager</span><span class="s">", defaultRollback = true)
+@Transactional
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"</span><span class="o">../</span><span class="n">config</span><span class="o">/</span><span class="n">applicationContextForTest</span><span class="o">.</span><span class="na">xml</span><span class="err">"</span><span class="o">})</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HibernateRankDaoTest</span> <span class="o">{</span>
+
+    <span class="nd">@Autowired</span>
+    <span class="kd">private</span> <span class="n">SessionFactory</span> <span class="n">sessionFactory</span><span class="o">;</span>
+    <span class="nd">@Autowired</span>
+    <span class="kd">private</span> <span class="n">HibernateRankDao</span> <span class="n">rankDao</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">Rank</span> <span class="n">rank</span><span class="o">;</span>
+
+    <span class="nd">@Before</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="n">setUp</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">RankUtil</span><span class="o">.</span><span class="na">defaultRank</span><span class="o">();</span>
+        <span class="n">rankDao</span><span class="o">.</span><span class="na">saveOrUpdate</span><span class="o">(</span><span class="n">rank</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="n">should_update_rank</span><span class="o">(){</span>
+        <span class="n">Rank</span> <span class="n">saved</span> <span class="o">=</span> <span class="n">rankDao</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">rank</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+        <span class="n">saved</span><span class="o">.</span><span class="na">setScore</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+        <span class="n">rankDao</span><span class="o">.</span><span class="na">saveOrUpdate</span><span class="o">(</span><span class="n">saved</span><span class="o">);</span>
+        <span class="n">Rank</span> <span class="n">result</span> <span class="o">=</span> <span class="n">rankDao</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">rank</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
+        <span class="n">assertEquals</span><span class="o">(</span><span class="n">saved</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">result</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">200</span><span class="o">,</span> <span class="n">result</span><span class="o">.</span><span class="na">getScore</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table>
+</div>
+
+<p>测试功能也非常简单直接，但是无论如何也无法在执行完测试后rollback所有的数据。尝试了各种Spring和Hibernate的配置，都没有作用。
+最后发现，问题其实是Mysql数据库本身。Mysql默认使用的engine是MyISAM,而它是不支持Transaction的！改成InnoDB，就一切OK了。
+关于InnoDB与MyISAM比较，可参考
+<a href="http://www.mikebernat.com/blog/MySQL_-_InnoDB_vs_MyISAM">http://www.mikebernat.com/blog/MySQL<em>-</em>InnoDB<em>vs</em>MyISAM</a></p>
+</div>
+  </article>
+  <div class="rows">
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'jiangpengsblog'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the
+  <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+  
+
+    </div>
+    
+    <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-20150563-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function () {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+
+</script>
+
+  </body>
+</html>

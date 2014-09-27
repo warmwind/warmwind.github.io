@@ -1,0 +1,191 @@
+
+
+<!doctype html>
+<html xmlns:wb=“http://open.weibo.com/wb”>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge;chrome=1' />
+    <meta name="keywords" content="jiang peng,姜鹏,warmwind,j2ee,mule ESB,ssh">
+    <link href="/stylesheets/all.css" rel="stylesheet" type="text/css" />
+    <script src="/javascripts/application.js" type="text/javascript"></script>
+    <script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js" type="text/javascript" charset="utf-8"></script>
+    <title>Hello Mule ESB - Jiang Peng</title>
+
+  </head>
+  <body>
+    <header class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/"><img alt="" height="60" src="http://gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg?s=60" width="60" />
+            <span class="title">Jiang Peng's Warm Wind</span>
+          </a>
+          <ul class="nav nav-pills pull-right">
+              <li class='active'><a href="/index.html">所有文章</a></li>
+  <li><a href="/apps.html">小程序们</a></li>
+  <li><a href="/about.html">关于我</a></li>
+  <li class='rss'><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li>
+
+          </ul>
+        </div>
+      </div>
+    </header>
+    <div class="container main-content">
+        <article class='article-container clearfix'>
+    <h1>Hello Mule ESB</h1>
+    <div class="more-info clearfix">
+      <div class="date pull-left">13 Jan 2011</div>
+      <ul class= 'pull-left tags-container'>
+    <li class='tag'><a href="/blogs/tags/j2ee.html">j2ee</a></li>
+    <li class='tag'><a href="/blogs/tags/mule-esb.html">mule ESB</a></li>
+    <li class='tag'><a href="/blogs/tags/ssh.html">ssh</a></li>
+</ul>
+
+      <!-- JiaThis Button BEGIN -->
+      <div class="jiathis_style_24x24 pull-right">
+        <a class="jiathis_button_qzone"></a>
+        <a class="jiathis_button_tsina"></a>
+        <a class="jiathis_button_tqq"></a>
+        <a class="jiathis_button_weixin"></a>
+        <a class="jiathis_button_renren"></a>
+      </div>
+      <script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1358051221670389" charset="utf-8"></script>
+      <!-- JiaThis Button END -->
+    </div>
+    <div class="blog-content"><p>这些天在一个庞大的J2EE遗留系统中工作，其实很想体验真正企业级应用是如何实现的。不过每天忙于应付ERB、Service、Dao、Validator .xml 等文件，修复Bug，感受到的只是众多的Class和Config，以及由此导致的启动JBoss花费4分钟多（只publish三个EAR）和尝试用IntelliJ打开要等很久很久很久，最终放弃的痛苦。</p>
+
+<p>今天这样的心情有所不同，接触了一个之前似乎在哪里看到过名字的东西叫做Mule ESB。</p>
+
+<p>是否使用Mule ESB可以从下面的<a href="http://www.mulesoft.org/what-mule-esb">mulesoft</a>网站给出的五个问题来考虑:</p>
+
+<blockquote>
+<ul>
+<li>Are you integrating 3 or more applications/services?</li>
+<li>Will you need to plug in more applications in the future?</li>
+<li>Do you need to use more than one type of communication protocol?</li>
+<li>Do you need message routing capabilities such as forking and aggregating message flows, or content-based routing?</li>
+<li>Do you need to publish services for consumption by other applications?</li>
+</ul>
+</blockquote>
+
+<p>也可以这样理解，Mule ESB就是用来解决上述问题才需要引入，而这种复杂性以及扩展性恐怕也只有在企业级的应用中才会出现，之前只是了解SSH，这些还远远不够。</p>
+
+<p>进入正题。其实今天也就是跑通了Hello world以及在示例代码中增加了一个很小的功能。。。</p>
+
+<p>这个Hello world的功能是：用户输入名称name，有两个Service来处理，第一个处理成Hello + name, 第二个进一步处理成Hello + name，how are you？这是个简单的模型，特别之处在于这两个Service彼此之间没有任何直接的通信，消息（name）的流转处理通过一个hello-config配置，每个Service只完成自己对输入消息的处理，然后输出即可。<a title="mulesoft" href="http://www.mulesoft.org/what-mule-esb" target="_blank">mulesoft</a>网站上有张图对这个功能作解释非常合适，转载一下
+<img src="/images/hello-mule.png" /></p>
+
+<p>其核心的配置如下：</p>
+<div class="highlight xml"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25</pre></td><td class="code"><pre><span class="nt">&lt;model</span> <span class="na">name=</span><span class="s">"helloSample"</span><span class="nt">&gt;</span>
+     <span class="nt">&lt;service</span> <span class="na">name=</span><span class="s">"GreeterUMO"</span><span class="nt">&gt;</span>
+         <span class="nt">&lt;inbound&gt;</span>
+             <span class="nt">&lt;stdio:inbound-endpoint</span> <span class="na">system=</span><span class="s">"IN"</span> <span class="na">transformer-refs=</span><span class="s">"StdinToNameString"</span><span class="nt">/&gt;</span>
+         <span class="nt">&lt;/inbound&gt;</span>
+         <span class="nt">&lt;component</span> <span class="na">class=</span><span class="s">"org.mule.example.hello.Greeter"</span><span class="nt">/&gt;</span>
+         <span class="nt">&lt;outbound&gt;</span>
+             <span class="nt">&lt;filtering-router&gt;</span>
+                 <span class="nt">&lt;vm:outbound-endpoint</span> <span class="na">path=</span><span class="s">"chitchatter"</span><span class="nt">/&gt;</span>
+                 <span class="nt">&lt;payload-type-filter</span> <span class="na">expectedType=</span><span class="s">"org.mule.example.hello.NameString"</span><span class="nt">/&gt;</span>
+             <span class="nt">&lt;/filtering-router&gt;</span>
+    <span class="nt">&lt;/service&gt;</span>
+     <span class="nt">&lt;service</span> <span class="na">name=</span><span class="s">"ChitChatUMO"</span><span class="nt">&gt;</span>
+         <span class="nt">&lt;inbound&gt;</span>
+             <span class="nt">&lt;vm:inbound-endpoint</span> <span class="na">path=</span><span class="s">"chitchatter"</span> <span class="na">transformer-refs=</span><span class="s">"NameStringToChatString"</span><span class="nt">/&gt;</span>
+         <span class="nt">&lt;/inbound&gt;</span>
+         <span class="nt">&lt;component</span> <span class="na">class=</span><span class="s">"org.mule.example.hello.ChitChatter"</span><span class="nt">/&gt;</span>
+         <span class="nt">&lt;outbound&gt;</span>
+             <span class="nt">&lt;pass-through-router&gt;</span>
+                 <span class="nt">&lt;stdio:outbound-endpoint</span> <span class="na">system=</span><span class="s">"OUT"</span> <span class="na">transformer-refs=</span><span class="s">"ChatStringToString"</span> <span class="nt">/&gt;</span>
+             <span class="nt">&lt;/pass-through-router&gt;</span>
+         <span class="nt">&lt;/outbound&gt;</span>
+     <span class="nt">&lt;/service&gt;</span>
+     <span class="nt">&lt;/service&gt;</span>
+ <span class="nt">&lt;/model&gt;</span>
+</pre></td></tr></tbody></table>
+</div>
+
+<p>这里面声明了两个Service分别对应前面功能说明中Service，比较重要的配置是：</p>
+
+<ul>
+<li>transformer-refs：在进入处理的Component之前会执行这里指定的方法，主要用来进行类型转换</li>
+<li>vm:inbound-endpoint/vm:outbound-endpoint: 指定一个输入输出的path。在这里GreeterUMO以chitchatter作为输出路径，ChatUMO以它作为输入，这样就会在这个path上监听，得到前者发出的消息。</li>
+<li><p>component：数据处理，这里指定了类，但没有指定具体方法，mule会在运行是根据参数类型来确定执行的方法。Greeter类中就会执行参数类型为NameString的方法。</p>
+<div class="highlight java"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3</pre></td><td class="code"><pre><span class="kd">public</span> <span class="n">Object</span> <span class="nf">greet</span><span class="p">(</span><span class="n">NameString</span> <span class="n">person</span><span class="o">){</span>
+      <span class="n">person</span><span class="o">.</span><span class="na">setGreeting</span><span class="o">(</span><span class="n">greeting</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table>
+</div>
+
+<p>当然如果有两个方法类型相同，就会抛出异常，需要额外的配置（不过现在我还不清楚，留待后续研究。。）</p></li>
+</ul>
+
+<p>这个Hello world还是比较简单的，两个Service都是在同一个工程下，使用相同的配置文件。如果是在不同的工程里，该怎么做呢？还有很多要研究！</p>
+</div>
+  </article>
+  <div class="rows">
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'jiangpengsblog'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the
+  <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+  
+
+    </div>
+    
+    <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-20150563-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function () {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+
+</script>
+
+  </body>
+</html>

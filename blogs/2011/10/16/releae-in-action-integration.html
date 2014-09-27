@@ -1,0 +1,144 @@
+
+
+<!doctype html>
+<html xmlns:wb=“http://open.weibo.com/wb”>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge;chrome=1' />
+    <meta name="keywords" content="jiang peng,姜鹏,warmwind,release,integration,heroku,test">
+    <link href="/stylesheets/all.css" rel="stylesheet" type="text/css" />
+    <script src="/javascripts/application.js" type="text/javascript"></script>
+    <script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js" type="text/javascript" charset="utf-8"></script>
+    <title>软件发布实战 -- 集成 - Jiang Peng</title>
+
+  </head>
+  <body>
+    <header class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/"><img alt="" height="60" src="http://gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg?s=60" width="60" />
+            <span class="title">Jiang Peng's Warm Wind</span>
+          </a>
+          <ul class="nav nav-pills pull-right">
+              <li class='active'><a href="/index.html">所有文章</a></li>
+  <li><a href="/apps.html">小程序们</a></li>
+  <li><a href="/about.html">关于我</a></li>
+  <li class='rss'><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li>
+
+          </ul>
+        </div>
+      </div>
+    </header>
+    <div class="container main-content">
+        <article class='article-container clearfix'>
+    <h1>软件发布实战 -- 集成</h1>
+    <div class="more-info clearfix">
+      <div class="date pull-left">16 Oct 2011</div>
+      <ul class= 'pull-left tags-container'>
+    <li class='tag'><a href="/blogs/tags/release.html">release</a></li>
+    <li class='tag'><a href="/blogs/tags/integration.html">integration</a></li>
+    <li class='tag'><a href="/blogs/tags/heroku.html">heroku</a></li>
+    <li class='tag'><a href="/blogs/tags/test.html">test</a></li>
+</ul>
+
+      <!-- JiaThis Button BEGIN -->
+      <div class="jiathis_style_24x24 pull-right">
+        <a class="jiathis_button_qzone"></a>
+        <a class="jiathis_button_tsina"></a>
+        <a class="jiathis_button_tqq"></a>
+        <a class="jiathis_button_weixin"></a>
+        <a class="jiathis_button_renren"></a>
+      </div>
+      <script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1358051221670389" charset="utf-8"></script>
+      <!-- JiaThis Button END -->
+    </div>
+    <div class="blog-content"><p>作为一个程序员， 每天开心的新程序，让所有的测试通，最后打浏览器，输入“localhost/newapp”， 看到开发的功能展现在眼前, 那种愉悦和满足不言而喻。</p>
+
+<p>但是有没有想过如何发布让其他人共享你的成果呢？</p>
+
+<p>当然！使用<a href="http://www.heroku.com">heroku</a>,输入下面的命令就可以轻松的帮你完成。</p>
+<div class="highlight shell"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1</pre></td><td class="code"><pre>git push heroku master
+</pre></td></tr></tbody></table>
+</div>
+
+<p>那如果同时要发布6 ，7个项目呢？项目之间可能共用数据库，共享若干代码。情况似乎就不那么简单。</p>
+
+<p>需要考虑的因素很多，其中集成无疑是非常重要的，下面两点，可见一斑。</p>
+
+<p>1、 与其他项目的集成</p>
+
+<p>一个很简单的例子。我们的项目的唯一入口是另一个项目中一个连接</p>
+<div class="highlight xml"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2</pre></td><td class="code"><pre>old link: http://host/show?name=jiangpeng
+new link: http://host/show
+</pre></td></tr></tbody></table>
+</div>
+
+<p>需求是把old link改成new link,以前name参数是必传的,否则就会失败，现在是可选择的。
+我们对自己的代码库非常熟悉，很快将验证必选的逻辑去掉。接下来就要去修改另一个代码库，那是个陈旧的用Perl完成的代码，修改完成之后甚至不知道怎么运行测试，而且CI还是红的,没法build出package,也没法提交。
+过了两天才顺利的做完，build出最新的版本，deploy到cloud上，功能完美，QA竖起大拇指说做的不错，没有bug！</p>
+
+<p>等到发布的时候只要把最新的包部署到production上面。这样就可以了么？
+不行！</p>
+
+<p>当前对于两个工程的修改在发布时是有依赖的。如果Perl工程先发布，就必然导致在我们工程发布之前的这个时间段，我们的功能将无法访问。通常，发布会持续两三天，也就是说最坏的情况，三天之内我们的应用都不可用。 这对于要求7*24小时在线的应用来说是不可接受的。
+其实这个问题是可以避免，在cloud上我们有E2E的测试，但是由于要在那个环境上做BAT，所以恰好关掉了cloud的自动部署。
+虽然只是这么微小的改变都有可能导致产品无法访问的巨大后果，这就是集成考虑不全面的后果。</p>
+
+<p>2、与数据库的集成
+发布从大的方面可以分为数据库与代码库两个部分，数据库先于代码库发布，如果发布持续3天，通常第一天第一步就是应用所有的数据库修改，然后陆续的发布不同项目的代码。
+如果只是增加新列或表，这个过程没有问题。如果是修改列名呢？
+按照前面的发布顺序，数据库发布之后，代码发布之前，应用必然异常，会提示数据库列不存在。以下的几个方案可以考虑实施：</p>
+
+<ul>
+<li>不要在最开始就执行数据库的修改，可以将修改列名这一个操作放在发布对应代码之前。这种方案其实就是缩短两者之间的时间差，期望在这个时间段内没有用户访问。</li>
+<li>与Business的人商量，如果允许产品下线，那么采用步骤1即可。通常Business的人对这种要求都会比较谨慎的思考，所以提出这样的建议前，也需要想清楚可否避免。</li>
+</ul>
+
+<p>与发布相关的集成点有的时候需要dev在开发结阶段不要仅仅局限于代码功能完成本身,而需要从发布的角度仔细想想才会避免. 当然更加科学的做法是通过足够的自动化测试来保证，纯粹靠程序员的思考，很难保证每一次都不出问题。</p>
+
+<p><a href="http://book.douban.com/subject/4031959/">《软件开发沉思录&ndash;ThoughtWorks文集》</a>中的第一章：Solving the Business Software “Last Mile”，更加详细和理论的阐述了大型项目发布的问题，不论是否参与过这样的发布, 都值得学习一下。</p>
+</div>
+  </article>
+  <div class="rows">
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'jiangpengsblog'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the
+  <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+  
+
+    </div>
+    
+    <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-20150563-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function () {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+
+</script>
+
+  </body>
+</html>

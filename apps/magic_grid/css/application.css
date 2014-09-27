@@ -1,0 +1,259 @@
+body {
+  font-family: "Lucida Grande", Verdana;
+}
+
+#wrapper {
+  margin: 0 auto;
+  width: 600px;
+  border-radius: 6px;
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  border: 1px solid #999;
+  -webkit-box-shadow: 2px 2px 2px 2px #ddd;
+  -moz-box-shadow: 2px 2px 2px 2px #ddd;
+  padding: 10px;
+  height: 480px;
+
+}
+
+header{
+	margin : 5px, auto;
+	font-weight: bold;
+	border-bottom: 1px dashed #orange;
+	text-align: center;
+	height: 30px;
+}
+
+header span{
+	padding-left:140px;
+}
+
+header a{
+	float:right;
+	font-size:12px;
+	margin-top:10px;
+}
+
+footer {
+  color: #ccc;
+  border-top: 1px dashed #ccc;
+  height: 20px;
+  text-align: center;
+}
+
+.note {
+  background-color: #EFFD3F;
+  padding: 4px;
+  font-size: 90%;
+}
+
+/*status*/
+.current {
+	height:40px;
+	margin-bottom:5px;
+	position:relative;
+}
+#result {
+	float:right;
+	display: inline-block;
+}
+
+#life{
+	float:left;
+	display: inline-block;
+	padding-left:10px;
+	width: 60px;
+}
+#score{
+	display: inline-block;
+	position:absolute;
+	padding-left: 190px;
+}
+.time-status {
+	height:30px;
+}
+
+#time{
+	margin:25px 0px, 0px, 50px;
+	color: red;
+	font-weight: bold;
+	font-size: 3em;
+	display:inline;
+}
+
+#time span{
+	padding-left:50px;
+}
+
+.info {
+	height: 20px;
+	text-align:center;
+}
+.info .win{
+	color: green;
+}
+.info .lose{
+	color: red;
+
+}
+
+/*status*/
+
+/*main*/
+
+#main{   
+    height: 310px; 
+ 	text-align: center;
+}  
+
+#main table{
+	margin: 0px auto;
+}
+
+#main table img{
+	cursor: pointer;
+}
+/*main*/
+
+
+
+
+.panel {
+	float: left;
+	width: 50px;
+	height: 50px;
+	margin: 3px;
+	position: relative;
+	
+	-webkit-perspective: 600;
+}
+/* -- make sure to declare a default for every property that you want animated -- */
+/* -- general styles, including Y axis rotation -- */
+.panel .front {
+	float: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 900;
+	width: inherit;
+	height: inherit;
+	border: 1px solid #ccc;
+	background: #777;
+
+	box-shadow: 0 1px 5px rgba(0,0,0,0.9);
+	-moz-box-shadow: 0 1px 5px rgba(0,0,0,0.9);
+	-webkit-box-shadow: 0 1px 5px rgba(0,0,0,0.9);
+	
+	-webkit-backface-visibility: hidden;
+
+	/* -- transition is the magic sauce for animation -- */
+	transition: all .4s ease-in-out;
+	-moz-transition: all .4s ease-in-out;
+	-webkit-transition: all .4s ease-in-out;
+}
+.panel.flip .front {
+	z-index: 900;
+	border-color: #eee;
+
+	-webkit-transform: rotateY(180deg);
+	
+	box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+	-moz-box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+	-webkit-box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+}
+
+.panel .back {
+	float: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 800;
+	width: inherit;
+	height: inherit;
+	border: 1px solid #ccc;
+	background: #888;
+	text-shadow: 1px  1px 1px rgba(0,0,0,0.6); 
+	
+	-webkit-transform: rotateY(-180deg);
+	-webkit-backface-visibility: hidden;
+
+	/* -- transition is the magic sauce for animation -- */
+	transition: all .4s ease-in-out;
+	-moz-transition: all .4s ease-in-out;
+	-webkit-transition: all .4s ease-in-out;
+}
+
+.panel.flip .back {
+	z-index: 1000;
+	
+	-webkit-transform: rotateY(0deg);
+	box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+	-moz-box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+	-webkit-box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+}
+
+/*all images*/
+
+#all-wrapper {
+  margin: 0 auto;
+  width: 600px;
+  border-radius: 6px;
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  border: 1px solid #999;
+  -webkit-box-shadow: 2px 2px 2px 2px #ddd;
+  -moz-box-shadow: 2px 2px 2px 2px #ddd;
+  padding: 10px;
+  height: 780px;
+
+}
+
+#main-all .all-panel {
+	float: left;
+	width: 50px;
+	height: 50px;
+	margin: 5px 10px 0px 10px;
+	position: relative;
+
+	-webkit-perspective: 600;
+}
+
+.all-panel .all-front {
+	float: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 900;
+	width: inherit;
+	height: inherit;
+	border: 1px solid #ccc;
+	background: #777;
+
+
+	box-shadow: 0 1px 5px rgba(0,0,0,0.9);
+	-moz-box-shadow: 0 1px 5px rgba(0,0,0,0.9);
+	-webkit-box-shadow: 0 1px 5px rgba(0,0,0,0.9);
+	
+}
+
+.all-name{
+	border-bottom: 1px solid #ccc;
+	font-size:12px;
+}
+
+#main-all{   
+    height: 700px; 
+ 	text-align: center;
+}  
+
+#main-all table{
+	margin: 0px auto;
+}
+
+#main-all image{
+	cursor:pointer;
+}
+
+
+
+/*all images*/

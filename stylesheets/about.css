@@ -1,0 +1,33 @@
+/* line 23, /Users/twer/Project/github/blog-build/source/stylesheets/_mixins.scss */
+.clearfix {
+  *zoom: 1; }
+  /* line 14, /Users/twer/Project/github/blog-build/source/stylesheets/_mixins.scss */
+  .clearfix:before, .clearfix:after {
+    display: table;
+    content: ""; }
+  /* line 19, /Users/twer/Project/github/blog-build/source/stylesheets/_mixins.scss */
+  .clearfix:after {
+    clear: both; }
+
+/* line 4, /Users/twer/Project/github/blog-build/source/stylesheets/about.css.scss */
+.container .about .img {
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0; }
+/* line 8, /Users/twer/Project/github/blog-build/source/stylesheets/about.css.scss */
+.container .about .details li {
+  display: initial;
+  margin-right: 20px; }
+  /* line 11, /Users/twer/Project/github/blog-build/source/stylesheets/about.css.scss */
+  .container .about .details li .add-weibo {
+    display: inline-block;
+    height: 15px; }
+/* line 16, /Users/twer/Project/github/blog-build/source/stylesheets/about.css.scss */
+.container .about .details img {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px; }
+  /* line 20, /Users/twer/Project/github/blog-build/source/stylesheets/about.css.scss */
+  .container .about .details img.github {
+    width: 25px;
+    height: 25px; }

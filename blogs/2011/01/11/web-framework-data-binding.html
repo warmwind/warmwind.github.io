@@ -1,0 +1,270 @@
+
+
+<!doctype html>
+<html xmlns:wb=“http://open.weibo.com/wb”>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge;chrome=1' />
+    <meta name="keywords" content="jiang peng,姜鹏,warmwind,ASP.NET MVC,Data Binding,Name convention,Rails,Spring MVC">
+    <link href="/stylesheets/all.css" rel="stylesheet" type="text/css" />
+    <script src="/javascripts/application.js" type="text/javascript"></script>
+    <script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js" type="text/javascript" charset="utf-8"></script>
+    <title>Web Framework大杂烩之Data Binding - Jiang Peng</title>
+
+  </head>
+  <body>
+    <header class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/"><img alt="" height="60" src="http://gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg?s=60" width="60" />
+            <span class="title">Jiang Peng's Warm Wind</span>
+          </a>
+          <ul class="nav nav-pills pull-right">
+              <li class='active'><a href="/index.html">所有文章</a></li>
+  <li><a href="/apps.html">小程序们</a></li>
+  <li><a href="/about.html">关于我</a></li>
+  <li class='rss'><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li>
+
+          </ul>
+        </div>
+      </div>
+    </header>
+    <div class="container main-content">
+        <article class='article-container clearfix'>
+    <h1>Web Framework大杂烩之Data Binding</h1>
+    <div class="more-info clearfix">
+      <div class="date pull-left">11 Jan 2011</div>
+      <ul class= 'pull-left tags-container'>
+    <li class='tag'><a href="/blogs/tags/asp-net-mvc.html">ASP.NET MVC</a></li>
+    <li class='tag'><a href="/blogs/tags/data-binding.html">Data Binding</a></li>
+    <li class='tag'><a href="/blogs/tags/name-convention.html">Name convention</a></li>
+    <li class='tag'><a href="/blogs/tags/rails.html">Rails</a></li>
+    <li class='tag'><a href="/blogs/tags/spring-mvc.html">Spring MVC</a></li>
+</ul>
+
+      <!-- JiaThis Button BEGIN -->
+      <div class="jiathis_style_24x24 pull-right">
+        <a class="jiathis_button_qzone"></a>
+        <a class="jiathis_button_tsina"></a>
+        <a class="jiathis_button_tqq"></a>
+        <a class="jiathis_button_weixin"></a>
+        <a class="jiathis_button_renren"></a>
+      </div>
+      <script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1358051221670389" charset="utf-8"></script>
+      <!-- JiaThis Button END -->
+    </div>
+    <div class="blog-content"><p>昨天在使用Spring MVC做界面，一边做一边在想着前面使用ASP.NET MVC时是如何实现的。在花了一段时间把CRUD搞定之后，不禁感叹，做到这个程度，似乎也就是做了Rails中下面的一句话：</p>
+<div class="highlight ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1</pre></td><td class="code"><pre><span class="n">rails</span> <span class="n">generate</span> <span class="n">scaffold</span>
+</pre></td></tr></tbody></table>
+</div>
+
+<p>于是，我觉得似乎有必要把接触过的这几个框架做个比较，至少从应用层面可以对Rails, Java和 .NET有个结构性的认识。</p>
+
+<p>既然是从做View时想到的这些，那么就先比较一下View中的Data Binding，也有的称为Model Binding。当我们提交表单时，如果完全手工处理，那么需要在后台从Request中取出每个Field的值，然后组装为需要的Model对象。当表单比较大，Field比较多时，就演变成了纯粹的体力劳动。这种自动包装表单为Model对象的功能就是Data Binding。</p>
+
+<h3>Rails</h3>
+
+<p>Rails中Convention over Configuration的原则使得不需要任何额外的工作就可以实现banding。</p>
+<div class="highlight ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27</pre></td><td class="code"><pre><span class="c1"># view代码</span>
+<span class="o">&lt;</span><span class="sx">% form_for(@product) </span><span class="k">do</span> <span class="o">|</span><span class="n">f</span><span class="o">|</span> <span class="sx">%&gt;
+  &lt;p&gt;</span>
+    <span class="o">&lt;</span><span class="sx">%= f.label :title %&gt;&lt;br /&gt;
+    &lt;%=</span> <span class="n">f</span><span class="p">.</span><span class="nf">text_field</span> <span class="ss">:title</span> <span class="sx">%&gt;
+  &lt;/p&gt;</span>
+  <span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="sx">%= f.label :description %&gt;&lt;br /&gt;
+    &lt;%=</span> <span class="n">f</span><span class="p">.</span><span class="nf">text_area</span> <span class="ss">:description</span> <span class="sx">%&gt;
+  &lt;/p&gt;</span>
+  <span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="sx">%= f.submit 'Create' %&gt;
+  &lt;/p&gt;
+&lt;% end %&gt;
+
+#controller代码
+  def create
+    @product =</span> <span class="no">Product</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="ss">:product</span><span class="p">])</span>
+
+    <span class="n">respond_to</span> <span class="k">do</span> <span class="o">|</span><span class="nb">format</span><span class="o">|</span>
+      <span class="k">if</span> <span class="vi">@product</span><span class="p">.</span><span class="nf">save</span>
+        <span class="nb">format</span><span class="p">.</span><span class="nf">html</span> <span class="p">{</span> <span class="n">redirect_to</span><span class="p">(</span><span class="vi">@product</span><span class="p">,</span> <span class="ss">:notice</span> <span class="o">=&gt;</span> <span class="s1">'Product was successfully created.'</span><span class="p">)</span> <span class="p">}</span>
+     <span class="k">else</span>
+        <span class="nb">format</span><span class="p">.</span><span class="nf">html</span> <span class="p">{</span> <span class="n">render</span> <span class="p">:</span><span class="n">action</span> <span class="o">=&gt;</span> <span class="s2">"new"</span> <span class="p">}</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+</pre></td></tr></tbody></table>
+</div>
+
+<p>其中form_for(@product)是Rails提供的view helper，将界面中的title和description属性与product对象绑定起来，而这个对象在controller中定义。当使用post到create方法时，rails从request params中创建包含数据用于存储的对象.</p>
+
+<h3>Spring MVC</h3>
+<div class="highlight java"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13</pre></td><td class="code"><pre><span class="c1">//view代码</span>
+<span class="o">&lt;</span><span class="nl">form:</span><span class="n">form</span> <span class="n">action</span><span class="o">=</span><span class="err">'</span><span class="o">/</span><span class="n">product</span><span class="o">/</span><span class="n">create</span><span class="o">.</span><span class="na">htm</span><span class="err">'</span> <span class="n">commandName</span><span class="o">=</span><span class="s">"product"</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="nl">form:</span><span class="n">input</span> <span class="n">path</span><span class="o">=</span><span class="s">"title"</span><span class="o">/&gt;</span>
+    <span class="o">&lt;</span><span class="nl">form:</span><span class="n">input</span> <span class="n">path</span><span class="o">=</span><span class="s">"description"</span><span class="o">/&gt;</span>
+    <span class="o">&lt;</span><span class="n">input</span> <span class="n">type</span><span class="o">=</span><span class="s">"submit"</span><span class="o">/&gt;&lt;/</span><span class="n">div</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="nl">form:</span><span class="n">form</span><span class="o">&gt;</span>
+
+<span class="c1">//controller代码</span>
+<span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">"/product/create.htm"</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">POST</span><span class="o">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">create</span><span class="p">(</span><span class="n">Product</span> <span class="n">product</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">service</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">product</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">REDIRECT_LIST_VIEW</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table>
+</div>
+
+<p>这里view使用&lt;form:form&gt;做view helper，其中的commandName属性指定了使用的model名称，&lt;form:input&gt;用来标明属性来实现binding。</p>
+
+<p>实际上，还可以使用另一种数据binding叫做“ModelAttribute”</p>
+<div class="highlight plaintext"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11</pre></td><td class="code"><pre>//view代码
+&lt;form:select path="role"&gt;
+     &lt;form:option value="NONE" label="--- Select ---"/&gt;
+     &lt;form:options items="${roles}"/&gt;
+&lt;/form:select&gt;
+
+//controller代码
+@ModelAttribute("roles")
+public ROLE[] roles() {
+     return ROLE.values();
+}
+</pre></td></tr></tbody></table>
+</div>
+
+<p>这种做法相当于在controller中声明了一个变量，在view中可以直接以${name}的方式使用。</p>
+
+<h3>ASP.NET MVC</h3>
+<div class="highlight csharp"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15</pre></td><td class="code"><pre><span class="c1">//view代码
+</span><span class="p">&lt;%</span>
+    <span class="k">using</span> <span class="p">(</span><span class="n">Html</span><span class="p">.</span><span class="nf">BeginForm</span><span class="p">(</span><span class="s">"Create"</span><span class="p">,</span> <span class="s">"Product"</span><span class="p">,</span> <span class="n">FormMethod</span><span class="p">.</span><span class="n">Post</span><span class="p">))</span> <span class="p">{</span> <span class="p">%&gt;</span>
+      <span class="p">&lt;%=</span> <span class="n">Html</span><span class="p">.</span><span class="nf">TextBox</span><span class="p">(</span><span class="s">"title"</span><span class="p">)</span> <span class="p">%&gt;</span>
+      <span class="p">&lt;%=</span> <span class="n">Html</span><span class="p">.</span><span class="nf">TextBox</span><span class="p">(</span><span class="s">"description"</span><span class="p">)</span> <span class="p">%&gt;</span>
+   <span class="p">&lt;</span><span class="n">input</span> <span class="n">type</span><span class="p">=</span><span class="s">"submit"</span><span class="p">/&gt;</span>
+<span class="p">&lt;%</span> <span class="p">}</span> <span class="p">%&gt;</span>
+
+<span class="c1">//controller代码
+</span><span class="na">[AcceptVerbs(HttpVerbs.Post)]</span>
+<span class="k">public</span> <span class="n">ActionResult</span> <span class="nf">Create</span><span class="p">(</span><span class="n">Product</span> <span class="n">product</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">service</span><span class="p">.</span><span class="nf">save</span><span class="p">(</span><span class="n">product</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nf">RedirectToAction</span><span class="p">(</span><span class="s">"list"</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table>
+</div>
+
+<p>这里在View中的Binding是通过DefaultModelBinder来实现的。它先查找是否有设定prefix，如果有的话就查找prefix.property，如果没有的话，就直接查找property。这里直接查找property。这也是因为在controller中的Create方法设定了Product参数，如果参数为空，则不会做任何binding。</p>
+
+<p>另一种banding是使用ViewData对象，这是ASP.NET MVC Controller提供的内置对象，类似于数组，可以在controller中赋值，在view中取用。另外，如果view继承自ViewPage<Model></p>
+<div class="highlight csharp"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1</pre></td><td class="code"><pre><span class="p">&lt;%</span><span class="err">@</span> <span class="n">Page</span> <span class="n">Title</span><span class="p">=</span><span class="s">""</span> <span class="n">Language</span><span class="p">=</span><span class="s">"C#"</span> <span class="n">MasterPageFile</span><span class="p">=</span><span class="s">"/product.aspx"</span> <span class="n">Inherits</span><span class="p">=</span><span class="s">"System.Web.Mvc.ViewPage&lt;Product&gt;"</span> <span class="p">%&gt;</span>
+</pre></td></tr></tbody></table>
+</div>
+
+<p>则可以直接使用Model来获取数据，Model是ViewData的内置对象。</p>
+
+<p>可以看出，三种框架在Data Binding中，共同点就是都注重Name Convention，这也当前发展的趋势吧。</p>
+</div>
+  </article>
+  <div class="rows">
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'jiangpengsblog'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the
+  <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+  
+
+    </div>
+    
+    <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-20150563-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function () {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+
+</script>
+
+  </body>
+</html>

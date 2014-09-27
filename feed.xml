@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>JiangPeng's WarwWind</title>
+  <subtitle></subtitle>
+  <id>http://jiangpeng.info/</id>
+  <link href="http://jiangpeng.info/"/>
+  <link href="http://jiangpeng.info/feed.xml" rel="self"/>
+  <updated>2014-08-26T08:00:00+08:00</updated>
+  <author>
+    <name>姜鹏</name>
+  </author>
+  <entry>
+    <title>Tricks On Upgrading Rails From 3.2 to 4.0</title>
+    <link rel="alternate" href="/blogs/2014/08/26/tricks-on-upgrading-rails-from-3-2-to-4-0.html"/>
+    <id>/blogs/2014/08/26/tricks-on-upgrading-rails-from-3-2-to-4-0.html</id>
+    <published>2014-08-26T08:00:00+08:00</published>
+    <updated>2014-08-26T08:00:00+08:00</updated>
+    <author>
+      <name>姜鹏</name>
+    </author>
+    <content type="html">&lt;p&gt;很久一段时间以来，我们使用的都是Rails3.2 + Mongoid3，虽然Rails4发布已经快一年的时间了，但由于mongoid3不能支持Rails4，所以升级就一推再推，不过终于在近期Mongoid发布4.0以后完成了这次期盼已经的升级。心情是兴奋地，不过过程还是曲折的，不少细节，只看升级文档，或者google，不看源码还是真心不好解决。本文不是升级指导，因已经有很多文章，在将列出，本文将对这次升级遇到的问题做个简单的介绍，包括了Rails，Mongoid，Capistrano。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;每次升级有两个前提必须保证才可以稍微顺利一些：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;完备的测试&lt;/li&gt;
+&lt;li&gt;通读官方&lt;a href="http://edgeguides.rubyonrails.org/upgrading_ruby_on_rails.html"&gt;升级文档&lt;/a&gt;。当然升级基本完成后才发现因为已经有Rails4已经有一年的时间，网上其实有不少可以参考的其他人的文章，中英文都可以，还有好心人翻译了国外的博文。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;Strong Parameters&lt;/h3&gt;
+
+&lt;p&gt;它主要用来增强mass assignment的安全性，Rails3中通过使用attr_accessible在model层面进行控制，没有声明为attr_accessible的属性不能用mass assignment来赋值。但通常来说这个赋值的行为发生在controller级别，所以Strong Parameter将这样行为的限制上升在controller，并通过下面的格式来进行限制。&lt;/p&gt;
+&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="n"&gt;params&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;permit&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="ss"&gt;:emails&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;[]},&lt;/span&gt; &lt;span class="ss"&gt;:friends&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt; &lt;span class="ss"&gt;:name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="ss"&gt;:family&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt; &lt;span class="ss"&gt;:name&lt;/span&gt; &lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="ss"&gt;:hobbies&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt; &lt;span class="p"&gt;}])&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;这其中定义了三种格式的参数类型，其中期望emails的值为Array的类型，而friends是一组Array的资源，有name属性，family的值为Array并含有name属性，hobbies的值则是Array类型。&lt;/p&gt;
+
+&lt;h3&gt;controller测试异常缓慢&lt;/h3&gt;
+
+&lt;p&gt;我们使用的MiniTest，升级完成后运行controller测试时，非常非常的缓慢。后来发现当测试中request请求成功后，停在了在render layout那这一步，需要将近5分钟才可以完成。测试本身是成功的，而这5分钟也与asset precompile的时间类似。&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Rails 4 no longer sets default config values for Sprockets in test.rb, so test.rb now requires Sprockets configuration. The old defaults in the test environment are: config.assets.compile = true, config.assets.compress = false, config.assets.debug = false and config.assets.digest = false.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;其中最主要的设置为&lt;/p&gt;
+&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="c1"&gt;# Don't fallback to assets pipeline if a precompiled asset is missed&lt;/span&gt;
+&lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;assets&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;compile&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kp"&gt;true&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;此项设置的主要目的是当找不到precompiled的asset时是不是需要时时编译。当然，我们是不需要这样的设置的，所以当设置为&lt;code&gt;false&lt;/code&gt;时就解决了这个问题。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;不过有个问题还是不明白，之前的默认值为&lt;code&gt;true&lt;/code&gt;是如何正确工作的呢？&lt;/em&gt;&lt;/p&gt;
+
+&lt;h3&gt;测试单独通过，rake test失败&lt;/h3&gt;
+
+&lt;p&gt;使用rake运行所有测试时，抛出&lt;/p&gt;
+&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="no"&gt;TypeError&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;compared&lt;/span&gt; &lt;span class="n"&gt;with&lt;/span&gt; &lt;span class="n"&gt;non&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;无法定位是什么问题，好在有人遇到了一样的问题 &lt;a href="https://github.com/freerange/mocha/issues/199"&gt;https://github.com/freerange/mocha/issues/199&lt;/a&gt;,不要使用ruby2.0.0-p0，改为2.0.0-p353就好了。&lt;/p&gt;
+
+&lt;h3&gt;Capistrano&lt;/h3&gt;
+
+&lt;p&gt;原先使用的是Capistrano2，由于Capistrano3做了很大的改动，所以为了平稳尽快完成Rails的升级，对Capistrano尽量做到最小的改动,&lt;a href="https://github.com/capistrano/capistrano/wiki/Upgrading-to-Rails-4#asset-pipeline"&gt;这篇文章&lt;/a&gt;一定要看。其中两点最重要：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;升级到2.15.4&lt;/li&gt;
+&lt;li&gt;将manifest.yml从shared/assets目录移到releases，并重命名为assets_manifest.yml，否则部署时会报错说有重复的manifest文件&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;需要注意的是，升级之后在部署过中可能会看到一些err输出，实际上是Capistrano将info的输出信息作为err打印到console了。参见这里&lt;a href="https://github.com/capistrano/capistrano/issues/625"&gt;INFO messages while asset precompiling treated as errors&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3&gt;嵌入的支持&lt;/h3&gt;
+
+&lt;p&gt;Rails4会在response的header里增加一下的默认值，其中&lt;code&gt;SAMEORIGIN&lt;/code&gt;限定了iframe在同一个domain中可以使用。如果取消这一限制有两种做法，一个是在下面的全局配置中将&lt;code&gt;X-Frame-Options&lt;/code&gt;改为&lt;code&gt;ALLOWALL&lt;/code&gt;。当然，如果只想针对单个请求，可以将这个设置在该请求的response中去除&lt;code&gt;response.headers.except! &amp;#39;X-Frame-Options&amp;#39;&lt;/code&gt;。&lt;/p&gt;
+&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4
+5&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;action_dispatch&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;default_headers&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="s1"&gt;'X-Frame-Options'&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;'SAMEORIGIN'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="s1"&gt;'X-XSS-Protection'&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;'1; mode=block'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="s1"&gt;'X-Content-Type-Options'&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;'nosniff'&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;h3&gt;Mongid中使用Only后的限制&lt;/h3&gt;
+
+&lt;p&gt;升级Mongoid4后，使用Only后的model对象将为只读，不可以再修改，否则会抛出下面的异常。检测document是否为只读可以直接在model上调用&lt;code&gt;readonly?&lt;/code&gt;。在Mongoid3中没有这样的限制&lt;/p&gt;
+&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4
+5
+6&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="no"&gt;Mongoid&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="no"&gt;Errors&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="no"&gt;ReadonlyDocument&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;span class="no"&gt;Problem&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;  &lt;span class="no"&gt;Attempted&lt;/span&gt; &lt;span class="n"&gt;to&lt;/span&gt; &lt;span class="n"&gt;persist&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;readonly&lt;/span&gt; &lt;span class="n"&gt;document&lt;/span&gt; &lt;span class="s1"&gt;'Entry'&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;
+&lt;span class="no"&gt;Summary&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+  &lt;span class="no"&gt;Documents&lt;/span&gt; &lt;span class="n"&gt;loaded&lt;/span&gt; &lt;span class="n"&gt;from&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;database&lt;/span&gt; &lt;span class="n"&gt;using&lt;/span&gt; &lt;span class="c1"&gt;#only cannot be persisted.&lt;/span&gt;
+&lt;span class="no"&gt;Resolution&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+  &lt;span class="no"&gt;Donot&lt;/span&gt; &lt;span class="n"&gt;attempt&lt;/span&gt; &lt;span class="n"&gt;to&lt;/span&gt; &lt;span class="n"&gt;persist&lt;/span&gt; &lt;span class="n"&gt;documents&lt;/span&gt; &lt;span class="n"&gt;that&lt;/span&gt; &lt;span class="n"&gt;are&lt;/span&gt; &lt;span class="n"&gt;flagged&lt;/span&gt; &lt;span class="n"&gt;as&lt;/span&gt; &lt;span class="n"&gt;readonly&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;另外使用only后，如果直接读取没有加载的属性，将抛出异常&lt;code&gt;ActiveModel::MissingAttributeError: Missing attribute: &amp;#39;not_load_attr’&lt;/code&gt;。在Mongoid3中返回nil。&lt;/p&gt;
+
+&lt;p&gt;下面是一些升级指导的链接&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://edgeguides.rubyonrails.org/upgrading_ruby_on_rails.html#upgrading-from-rails-3.2-to-rails-4.0"&gt;http://edgeguides.rubyonrails.org/upgrading&lt;em&gt;ruby&lt;/em&gt;on_rails.html#upgrading-from-rails-3.2-to-rails-4.0&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.oschina.net/translate/get-your-app-ready-for-rails-4"&gt;http://www.oschina.net/translate/get-your-app-ready-for-rails-4&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://ruby-china.org/topics/15579"&gt;https://ruby-china.org/topics/15579&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.sitepoint.com/get-your-app-ready-for-rails-4/"&gt;http://www.sitepoint.com/get-your-app-ready-for-rails-4/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Nginx 与 Unicorn</title>
+    <link rel="alternate" href="/blogs/2014/03/10/nginx-unicorn.html"/>
+    <id>/blogs/2014/03/10/nginx-unicorn.html</id>
+    <published>2014-03-10T08:00:00+08:00</published>
+    <updated>2014-03-10T08:00:00+08:00</updated>
+    <author>
+      <name>姜鹏</name>
+    </author>
+    <content type="html">&lt;p&gt;Capistrano, Nginx 与 Unicorn的搭配作为Rails应用的部署方式是现在成熟与流行的模式，&lt;a href="https://coderwall.com/p/yz8cha"&gt;Deploying Rails app using Nginx, Unicorn, Postgres and Capistrano to Digital Ocean&lt;/a&gt;这篇文章详细介绍了如何来使用，本文希望稍微深入一些来看看Nginx与Unicorn之间是如何通信的，以及Unicorn如何实现部署时做到了零宕机。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;h3&gt;Unicorn&lt;/h3&gt;
+
+&lt;p&gt;Unicorn是应用服务器，以master/workers的模式工作。当master进程启动时，会将整个应用加载到内存中，之后会fork出若干个worker，master不处理任何请求，这时worker的工作。master进程管理所有的worker，它清楚每个worker处理请求的时间，当超过某个阈值时，会kill掉这个worker，并立刻fork出一个新的，以防止大量耗时的请求将worker耗尽。fork一个worker是瞬间完成的。&lt;/p&gt;
+
+&lt;h4&gt;负载均衡&lt;/h4&gt;
+
+&lt;p&gt;传统的负载均衡是会基于某种算法（例如根据worker上次一个处理的时间）将下一个request加入到worker的队里中，但是如果很不幸这个worker正在处理的是一个耗时的操作，那么队列中的后续请求就block了。而unicorn的负载均衡是Unix系统内核完成的，所有的worker在就绪时通过unix的select(2)来从队列中（这里的队列其实是shared listen socket）抓取请求。通过这种方式，请求队列在master进程上，而一旦有可用的worker，就可以立即进行处理，而不会出现前面的问题，除非所有的worker都在处理慢请求，那只能等到超时后被master kill掉，然后重新fork出worker。
+当然，如果出现这种情况，就是系统本身有问题或者遭到了攻击。&lt;/p&gt;
+
+&lt;h4&gt;零宕机部署&lt;/h4&gt;
+
+&lt;p&gt;&lt;a href="http://capistranorb.com"&gt;Capistrano&lt;/a&gt;是一个简单易用的自动化部署工具，可通过脚本配置，将应用部署到多个服务器中，支持在不同的部署阶段执行相应的任务。不过零宕机部署的主要功劳在unicorn。在部署时，我们会向当前的unicorn master进程发送USER2信号，它会开始创建一个新的master进程，重新加载应用。之后fork它自己需要的worker。第一个fork出的子进程会发现还有另一个旧的master进程，那么就会向它发送QUIT信号，旧master会等待自己所有的worker完成当前的请求后终止。由于旧的worker会继续处理完当时的请求，所以用户不会察觉到程序的修改，而同时，新的master和worker已经开始工作，所有新来的请求会由新的worker处理，这样就实现了零宕机。&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;QUIT - graceful shutdown, waits for workers to finish their current request before finishing.&lt;/li&gt;
+&lt;li&gt;USR2 - reexecute the running binary. A separate QUIT should be sent to the original process once the child is verified to be up and running.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="n"&gt;unicorn_pid&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;shared_path&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;/pids/unicorn.pid"&lt;/span&gt;
+&lt;span class="nb"&gt;test&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt; &lt;span class="n"&gt;unicorn_pid&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;kill&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="no"&gt;USR2&lt;/span&gt; &lt;span class="sb"&gt;`cat &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;unicorn_pid&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;当然，这只是针对的仅有代码修改的部署。如果牵扯到数据库迁移，就不能简单的这样处理，因为数据库是在新旧worker之间共享的。不过也可以通过迁移脚本来尽可以达到这个目的，这就是另一个话题了。&lt;/p&gt;
+
+&lt;h3&gt;Nginx&lt;/h3&gt;
+
+&lt;p&gt;Nginx是一个http服务器和反向代理服务器，功能强大，而且配置起来并不复杂。下面简单介绍一下其中的几个主要概念。&lt;/p&gt;
+
+&lt;h4&gt;upstream&lt;/h4&gt;
+
+&lt;p&gt;它定义了一组server，可以通过unix的socket，也可以是domain name或者IP地址。这里使用那种方式需要根据与unicorn设置的配合来确定，如果在unicorn中设置了listen某个端口，则nginx也要使用端口，如果unicorn中设置了listen某个socket，则unicorn中就要指定socket的位置，这个就是ngxin与unicorn通信的地方。
+upstream除了可以定义server的地址以外，还可以作为进行负载均衡的设定。通过设置weight来改变默认的权重，也可以使用默认的方法，例如least&lt;em&gt;conn来设定使用连接最少的server，ip&lt;/em&gt;hash来设定将同一个ip的request发送给同一个server。&lt;/p&gt;
+&lt;div class="highlight nginx"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4
+5&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="k"&gt;upstream&lt;/span&gt; &lt;span class="s"&gt;example&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kn"&gt;server&lt;/span&gt; &lt;span class="s"&gt;backend1.example.com&lt;/span&gt; &lt;span class="s"&gt;weight=5&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kn"&gt;server&lt;/span&gt; &lt;span class="nf"&gt;127.0.0.1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;8080&lt;/span&gt;       &lt;span class="s"&gt;max_fails=3&lt;/span&gt; &lt;span class="s"&gt;fail_timeout=30s&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kn"&gt;server&lt;/span&gt; &lt;span class="s"&gt;unix:/var/apps/example/tmp/sockets/unicorn.sock&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="c1"&gt;#unicorn.rb&lt;/span&gt;
+&lt;span class="n"&gt;listen&lt;/span&gt; &lt;span class="mi"&gt;8090&lt;/span&gt;
+&lt;span class="n"&gt;listen&lt;/span&gt; &lt;span class="no"&gt;APP_ROOT&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="s2"&gt;"/tmp/sockets/unicorn.sock"&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;h3&gt;server&lt;/h3&gt;
+
+&lt;p&gt;它定义了一个虚拟的server，下面的配置定义都非常表意，需要注意的时proxy_pass，这里使用了上面定义的upstream，也就是将所有的请求都转向到example这一组server上。
+nginx在处理request时是有一定顺序的，例如下面的定义中，nginx会检测request header中的HOST是example.com还是example.net来匹配不同的server。而在匹配的server中，还会根据location的设置来匹配不同的设置，例如请求的是example.com/test.gif，则会匹配第二个location，从而在增加一个30天的过期时间。&lt;/p&gt;
+&lt;div class="highlight nginx"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="k"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="kn"&gt;listen&lt;/span&gt; &lt;span class="mi"&gt;80&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;server_name&lt;/span&gt; &lt;span class="s"&gt;example.com&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;root&lt;/span&gt; &lt;span class="n"&gt;/var/apps/example/current/public&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;index&lt;/span&gt; &lt;span class="s"&gt;index.html&lt;/span&gt; &lt;span class="s"&gt;index.htm&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+        &lt;span class="kn"&gt;access_log&lt;/span&gt; &lt;span class="n"&gt;/var/log/nginx/example_access.log&lt;/span&gt; &lt;span class="s"&gt;info&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;error_log&lt;/span&gt; &lt;span class="n"&gt;/var/log/nginx/example_error.log&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+        &lt;span class="kn"&gt;location&lt;/span&gt; &lt;span class="n"&gt;/&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+          &lt;span class="kn"&gt;proxy_pass&lt;/span&gt; &lt;span class="s"&gt;http://example&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+        &lt;span class="kn"&gt;location&lt;/span&gt; &lt;span class="p"&gt;~&lt;/span&gt;&lt;span class="sr"&gt;*&lt;/span&gt; &lt;span class="err"&gt;\&lt;/span&gt;&lt;span class="s"&gt;.(gif|jpg|png)&lt;/span&gt;$ &lt;span class="p"&gt;{&lt;/span&gt;
+          &lt;span class="kn"&gt;root&lt;/span&gt; &lt;span class="n"&gt;/var/apps/example/current/public&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+          &lt;span class="kn"&gt;expires&lt;/span&gt; &lt;span class="s"&gt;30d&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="kn"&gt;listen&lt;/span&gt; &lt;span class="mi"&gt;80&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;server_name&lt;/span&gt; &lt;span class="s"&gt;example.net&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;上面只是简单介绍了一下unicorn和ngxin如何工作以及如何配置，下面的一些文章有更详细的介绍：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://sirupsen.com/setting-up-unicorn-with-nginx"&gt;http://sirupsen.com/setting-up-unicorn-with-nginx&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://blog.engineyard.com/2010/everything-you-need-to-know-about-unicorn"&gt;https://blog.engineyard.com/2010/everything-you-need-to-know-about-unicorn&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/blog/517-unicorn"&gt;https://github.com/blog/517-unicorn&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://tomayko.com/writings/unicorn-is-unix"&gt;http://tomayko.com/writings/unicorn-is-unix&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://nginx.org/en/docs/http/ngx_http_upstream_module.html"&gt;http://nginx.org/en/docs/http/ngx&lt;em&gt;http&lt;/em&gt;upstream_module.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://nginx.org/en/docs/http/request_processing.html"&gt;http://nginx.org/en/docs/http/request_processing.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+  </entry>
+  <entry>
+    <title>支付宝集成——校验与应答</title>
+    <link rel="alternate" href="/blogs/2014/01/04/alipay-verify-request.html"/>
+    <id>/blogs/2014/01/04/alipay-verify-request.html</id>
+    <published>2014-01-04T08:00:00+08:00</published>
+    <updated>2014-01-04T08:00:00+08:00</updated>
+    <author>
+      <name>姜鹏</name>
+    </author>
+    <content type="html">&lt;p&gt;前一篇文章介绍了如何生成支付宝的请求URL，当顺利打开支付宝的登录页面后，这里的操作就与应用本身无关了，完全在支付宝内部完成。当用户的交易状态改变，比如付款成功时，支付宝会通过POST发送请求URL中设定的notify_url。由于通常都需要在回调中进行业务逻辑处理，因为，为了防止恶意或伪造请求，需要对该请求进行严格的校验。&lt;/p&gt;
+
+&lt;h4&gt;MD5校验&lt;/h4&gt;
+
+&lt;p&gt;按照请求URL中的规则，对参数再进行一次MD5运算，与传递过来的sign值进行比较，这是为了保证URL的完整性，参数的值没有在传递过程中被篡改，因为需要的KEY值只有支付宝和系统内部可知。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;h4&gt;支付宝校验&lt;/h4&gt;
+
+&lt;p&gt;对网页版的支付异步回调，支付宝提供了专门的service来校验合法性。在收到POST请求的&lt;em&gt;一分钟内&lt;/em&gt;，可以请求下面的地址，如果返回的body是个字符串true，则这是个有效的通知。
+手机版是没有这个校验service的。&lt;/p&gt;
+&lt;div class="highlight html"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;https://mapi.alipay.com/gateway.do?service=notify_verify?partner=xxxxx&lt;span class="err"&gt;&amp;amp;&lt;/span&gt;notify_id=xxxxx
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;支付宝的异步通知规则为,所以当异步回调成功处理之后，一定要返回success文字，并且要在业务逻辑上注意检测是否已经处理过该请求，防止重复处理。&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;程序执行完后必须打印输出“success”(不包含引号、前后无空格和其他多 余字符)。如果商户反馈给支付宝的字符不是 success 这 7 个字符,支付宝 服务器会不断重发通知,直到超过 24 小时 22 分钟。
+一般情况下,25 小时以内完成 8 次通知(通知的间隔频率一般是: 2m,10m,10m,1h,2h,6h,15h)&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;此篇与上篇文章介绍了与支付宝交互的内部流程，实际在开发中有很多库可用，它们主要提供了生成URL，校验，以及通知内容的封装等。基于Ruby On Rails的技术栈，我们采用了下面两个gem：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/Shopify/active_merchant" target="_blank"&gt;activemerchant&lt;/a&gt;：这个集成了全球流行的支付网关&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/flyerhzm/activemerchant_patch_for_china" target="_blank"&gt;activemerchant_patch_for_china&lt;/a&gt;：这个gem集成了 alipay (支付宝), 99bill (快钱), tenpay (财付通), 19pay(捷迅支付) and yeepay(易宝)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;在支付宝手机网页支付方面，由于当时没有找到现成的gem，所以就是自己实现了。&lt;/p&gt;
+
+&lt;p&gt;前两天在上看到Ruby China上的&lt;a href="http://ruby-china.org/topics/12992" target="_blank"&gt;这篇文章&lt;/a&gt;介绍了一个gem，专门用于支付宝，可以通过查看它的源代码来了解实现细节。不够这个gem似乎也还不包括手机移动支付的部分。&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>支付宝集成——生成请求URL</title>
+    <link rel="alternate" href="/blogs/2014/01/03/alipay-generate-request-url.html"/>
+    <id>/blogs/2014/01/03/alipay-generate-request-url.html</id>
+    <published>2014-01-03T08:00:00+08:00</published>
+    <updated>2014-01-03T08:00:00+08:00</updated>
+    <author>
+      <name>姜鹏</name>
+    </author>
+    <content type="html">&lt;p&gt;去年的这个时候，开始开发基于支付宝的收费模块，现在已经运行了快到一年。这期间从担保交易到即时到帐，再到支持手机支付，经历了用户真正的验证后，今天来总结一下支付宝集成中得注意事项。当然要先申请支付宝的商家服务，拿到PID和Key，并至少签约成即时到帐、双工或者担保交易的一种。&lt;/p&gt;
+
+&lt;p&gt;以开发的角度，从发起到结束可以分为以下两个主要步骤：生成请求URL（网页版和手机版的生成方式是不同的），支付宝回调校验和应答。这里先来说一下生成请求URL的注意事项。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;h4&gt;电脑网页版生成请求URL&lt;/h4&gt;
+
+&lt;p&gt;这会是一个普通的GET请求，支付宝的网关是，https://mapi.alipay.com/gateway.do，需要在网关后增添上需要的参数。如果请求成功，可以看到支付宝的登录页面。其中有几个需要注意的参数：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;同步转向地址return_url：用户支付成功以后的同步转向页面&lt;/li&gt;
+&lt;li&gt;异步通知地址notify_url：当用户的交易状态发生任何变化（比如买家已付款，卖家已发货等）的时候，支付宝都会以POST方式来请求这个地址，并传递相应的参数。&lt;/li&gt;
+&lt;li&gt;sign和sign_type：支付宝要求对请求的参数需要做MD5加密，除了这两个参数以外，其它的参数都需要跟据字母顺序排序后加密。&lt;/li&gt;
+&lt;li&gt;商户订单号out_trade_no：这里可以定义为系统中的某个唯一的值，它与支付宝的订单号一一对应。&lt;/li&gt;
+&lt;li&gt;logistics_fee, logistics_type, logistics_payment：如果是担保交易，则必须指定这三个关于快递的参数。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4&gt;手机网页支付生成请求URL&lt;/h4&gt;
+
+&lt;p&gt;手机网页支付与电脑网页支付有很大的不同：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;手机端只支持即时到帐交易&lt;/li&gt;
+&lt;li&gt;手机端数据交互格式不是普通的URL的参数，而是xml格式，在请求中的req_data参数需要传入的格式应该如下：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight xml"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4
+5
+6
+7
+8&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;  &lt;span class="nt"&gt;&amp;lt;direct_trade_create_req&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;subject&amp;gt;&lt;/span&gt;#{options[:subject]}&lt;span class="nt"&gt;&amp;lt;/subject&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;out_trade_no&amp;gt;&lt;/span&gt;#{options[:out_trade_no]}&lt;span class="nt"&gt;&amp;lt;/out_trade_no&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;total_fee&amp;gt;&lt;/span&gt;#{options[:price]}&lt;span class="nt"&gt;&amp;lt;/total_fee&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;seller_account_name&amp;gt;&lt;/span&gt;#{options[:seller_email]}&lt;span class="nt"&gt;&amp;lt;/seller_account_name&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;call_back_url&amp;gt;&lt;/span&gt;#{options[:call_back_url]}&lt;span class="nt"&gt;&amp;lt;/call_back_url&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;notify_url&amp;gt;&lt;/span&gt;#{options[:notify_url]}&lt;span class="nt"&gt;&amp;lt;/notify_url&amp;gt;&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;lt;/direct_trade_create_req&amp;gt;&lt;/span&gt;        
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;手机端请求URL时分两步，首先获取token，再以token请求支付页面&lt;/p&gt;
+
+&lt;p&gt;第一步，请求移动网关http://wappaygw.alipay.com/service/rest.htm，参数包含一些基本参数和上面的req_data外，要指定service为alipay.wap.trade.create.direct。当然也是需要MD5加密的（支付宝也支持RSA加密，不过由于我们的系统允许用户输入自己的PID和KEY来使用，所以我们选择了简单的MD5加密）。&lt;/p&gt;
+
+&lt;p&gt;第二步，解析返回的参数，取出token，然后构造执行的请求req_data为&lt;/p&gt;
+&lt;div class="highlight xml"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="nt"&gt;&amp;lt;auth_and_execute_req&amp;gt;&lt;/span&gt;
+&lt;span class="nt"&gt;&amp;lt;request_token&amp;gt;&lt;/span&gt;#{token}&lt;span class="nt"&gt;&amp;lt;/request_token&amp;gt;&lt;/span&gt;
+&lt;span class="nt"&gt;&amp;lt;/auth_and_execute_req&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;再一次请求移动网关，并将service设为alipay.wap.auth.authAndExecute。幸运的话，应该就能在手机上看到手机的支付宝登陆页面了。&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;生成URL中最长出现的错误可能就是MD5加密的错误，这时通常需要检查加密参数的顺序是否正确，或者参数是否完备或有多余了。&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>常用易混的四个Rails View Helper方法</title>
+    <link rel="alternate" href="/blogs/2013/12/01/some-rails-helper-methods-those-are-confusing.html"/>
+    <id>/blogs/2013/12/01/some-rails-helper-methods-those-are-confusing.html</id>
+    <published>2013-12-01T08:00:00+08:00</published>
+    <updated>2013-12-01T08:00:00+08:00</updated>
+    <author>
+      <name>姜鹏</name>
+    </author>
+    <content type="html">&lt;p&gt;Rails中有非常多强大的View Helper，今天其实想在这里简单总结其中4个与安全相关但又容易混淆的。&lt;/p&gt;
+
+&lt;p&gt;它们分别是: &lt;a href="http://api.rubyonrails.org/classes/ERB/Util.html#method-c-h"&gt;h&lt;/a&gt;, &lt;a href="http://api.rubyonrails.org/classes/String.html#method-i-html_safe"&gt;html_safe&lt;/a&gt;, &lt;a href="http://api.rubyonrails.org/classes/ActionView/Helpers/TextHelper.html#method-i-simple_format"&gt;simple_format&lt;/a&gt;, &lt;a href="http://api.rubyonrails.org/classes/ActionView/Helpers/SanitizeHelper.html#method-i-sanitize"&gt;sanitize&lt;/a&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;h4&gt;h&lt;/h4&gt;
+
+&lt;p&gt;我们经常需要在页面上动态展示文字，这些完全可能来自用户的输入。所以为了防止XSS，在页面渲染时，需要对文字进行转义。在Rails2时，经常见到如下的代码&lt;/p&gt;
+&lt;div class="highlight erb"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="cp"&gt;&amp;lt;%=&lt;/span&gt; &lt;span class="n"&gt;h&lt;/span&gt; &lt;span class="n"&gt;some_text&lt;/span&gt; &lt;span class="cp"&gt;%&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;其中h方法就是进行转义操作，它的同义方法为html_escape。当然在Rails3之后，h方法已经是默认调用，所以不要再显示出现了。
+从源代码可以看出，这里会对四种符号进行转义（&amp;amp;&amp;ldquo;&amp;lsquo;&amp;gt;&amp;lt;），也就是在Rails的console中可以尝试如下代码&lt;/p&gt;
+&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="kp"&gt;include&lt;/span&gt; &lt;span class="no"&gt;ERB&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="no"&gt;Util&lt;/span&gt;
+ &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="no"&gt;Object&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;puts&lt;/span&gt; &lt;span class="n"&gt;html_escape&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"is a &amp;gt; 0 &amp;amp; a &amp;lt; 10?"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;gt&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;amp&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;lt&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;?&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;h4&gt;html_safe&lt;/h4&gt;
+
+&lt;p&gt;其实h方法的实现依赖此方法，其实现中首先判断是否是html_safe，如果是就直接返回，否则做转义替换。&lt;/p&gt;
+&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4
+5
+6
+7
+8&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;html_escape&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;s&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;to_s&lt;/span&gt;
+  &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;html_safe?&lt;/span&gt;
+    &lt;span class="n"&gt;s&lt;/span&gt;
+  &lt;span class="k"&gt;else&lt;/span&gt;
+    &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;gsub&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sr"&gt;/[&amp;amp;"'&amp;gt;&amp;lt;]/&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;HTML_ESCAPE&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;html_safe&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;html_safe是个很容易理解错误的方法。它不是像方法名那样将调用的对象转换为安全的，而是变成了另一个类型。它是打开String后添加的一个方法，因此可以在任何String上调用，返回一个SafeBuffer对象。&lt;/p&gt;
+&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4
+5&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;String&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;html_safe&lt;/span&gt;
+    &lt;span class="no"&gt;ActiveSupport&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="no"&gt;SafeBuffer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;SafeBuffer是个特别的类，它覆写了String的+, &amp;lt;&amp;lt; 和 []，当在erb中输出时，它不进行转义，而当给它concat一个普通的String时，它会对连接的这个字符转义。可以这样理解这个对象，它认为自己是“Safe”的缓冲池，当你给它连接字符时，则需要将其转义来保证“Safe”，而如果连接的同样是个“Safe”的对象，就不要转义了。并不是在页面上输出所有的字符时我们都需要转义，一个典型的应用场景如下（引用自&lt;a href="http://makandracards.com/makandra/2579-everything-you-know-about-html_safe-is-wrong"&gt;http://makandracards.com/makandra/2579-everything-you-know-about-html_safe-is-wrong&lt;/a&gt;）：&lt;/p&gt;
+&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4
+5
+6
+7&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;group&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;content&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;""&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;html_safe&lt;/span&gt;
+  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s2"&gt;"&amp;lt;div class='group'&amp;gt;"&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;html_safe&lt;/span&gt;
+  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;content&lt;/span&gt;
+  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s2"&gt;"&amp;lt;/div&amp;gt;"&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;html_safe&lt;/span&gt;
+  &lt;span class="n"&gt;html&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;h4&gt;simple_format&lt;/h4&gt;
+
+&lt;p&gt;这个方法比较好理解，顾名思义，用来格式化字符串的，主要的目的是将两个或多个换行符(\n)替换成(p)， 一个换行符替换成(&amp;lt;br /&amp;gt;)&lt;/p&gt;
+
+&lt;h4&gt;sanitize&lt;/h4&gt;
+
+&lt;p&gt;它提供了比h方法更加灵活转义策略，可以自定义不需要转义的tag。例如需要在页面显示让用自定义某些style时，就可以可以允许&amp;lt;style&amp;gt;标签，而不将其转义。&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Build Phonegap Application using CoffeeScipt Scss and Haml</title>
+    <link rel="alternate" href="/blogs/2013/06/04/build-phonegap-using-coffee-scss-haml.html"/>
+    <id>/blogs/2013/06/04/build-phonegap-using-coffee-scss-haml.html</id>
+    <published>2013-06-04T08:00:00+08:00</published>
+    <updated>2013-06-04T08:00:00+08:00</updated>
+    <author>
+      <name>姜鹏</name>
+    </author>
+    <content type="html">&lt;p&gt;Refer to &lt;a href="https://github.com/warmwind/phonegap-scaffold"&gt;phonegap-scaffold&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="http://phonegap.com/"&gt;PhoneGap&lt;/a&gt; is a tool that allows developer to build cross platform mobile native application using javascript, html and css. &lt;/p&gt;
+
+&lt;p&gt;This is great, however, the raw js, html and css is outdate. There are plenty of techniques that can be used to improve the efficiency. For example, &lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://coffeescript.org/"&gt;CoffeeScript&lt;/a&gt; for javascript&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://haml.info/"&gt;Haml&lt;/a&gt; for html&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://sass-lang.com/"&gt;Scss&lt;/a&gt; for css&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;All of these &amp;ldquo;new&amp;rdquo; tech have clear syntax and can be easiliy compiled to raw files.&lt;/p&gt;
+
+&lt;p&gt;For development purpose, we also need:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Autocompile to raw files&lt;/li&gt;
+&lt;li&gt;Rake tasks to run test. Jasmine for JavaScript&lt;/li&gt;
+&lt;li&gt;Different urls for different environment. (developement, uat, production, etc)&lt;/li&gt;
+&lt;li&gt;Rake tasks to deploy app to simulators for quick look&lt;/li&gt;
+&lt;li&gt;Ajust styles in browser, no need to deploy each time&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;So I create a repo in github called &lt;a href="https://github.com/warmwind/phonegap-scaffold"&gt;phonegap-scaffold&lt;/a&gt;. &lt;/p&gt;
+</content>
+  </entry>
+</feed>

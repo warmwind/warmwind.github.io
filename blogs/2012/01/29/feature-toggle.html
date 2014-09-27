@@ -1,0 +1,139 @@
+
+
+<!doctype html>
+<html xmlns:wb=“http://open.weibo.com/wb”>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge;chrome=1' />
+    <meta name="keywords" content="jiang peng,姜鹏,warmwind,">
+    <link href="/stylesheets/all.css" rel="stylesheet" type="text/css" />
+    <script src="/javascripts/application.js" type="text/javascript"></script>
+    <script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js" type="text/javascript" charset="utf-8"></script>
+    <title>Feature Toggle - Jiang Peng</title>
+
+  </head>
+  <body>
+    <header class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/"><img alt="" height="60" src="http://gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg?s=60" width="60" />
+            <span class="title">Jiang Peng's Warm Wind</span>
+          </a>
+          <ul class="nav nav-pills pull-right">
+              <li class='active'><a href="/index.html">所有文章</a></li>
+  <li><a href="/apps.html">小程序们</a></li>
+  <li><a href="/about.html">关于我</a></li>
+  <li class='rss'><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li>
+
+          </ul>
+        </div>
+      </div>
+    </header>
+    <div class="container main-content">
+        <article class='article-container clearfix'>
+    <h1>Feature Toggle</h1>
+    <div class="more-info clearfix">
+      <div class="date pull-left">29 Jan 2012</div>
+      <ul class= 'pull-left tags-container'>
+</ul>
+
+      <!-- JiaThis Button BEGIN -->
+      <div class="jiathis_style_24x24 pull-right">
+        <a class="jiathis_button_qzone"></a>
+        <a class="jiathis_button_tsina"></a>
+        <a class="jiathis_button_tqq"></a>
+        <a class="jiathis_button_weixin"></a>
+        <a class="jiathis_button_renren"></a>
+      </div>
+      <script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1358051221670389" charset="utf-8"></script>
+      <!-- JiaThis Button END -->
+    </div>
+    <div class="blog-content"><p>每个迭代(两周)发布一次，所有功能必须完整可用。这对项目的计划，story的划分都提出了很高的要求。然而有的功能很难在一个迭代内完成，例如某个story在临近迭代结束的时候开始，或者某个系统的某个特性需要持续若干迭代的开发， 在整体完成之前不能出现在产品中。那么如何控制未完成的功能不出现在产品中而又不影响新的代码开发呢？这时就需要引入Feature Toggle。</p>
+
+<p>在Rails中Feature Toggle可以分为三个部分：</p>
+
+<ul>
+<li><p>定位配置文件：比如toggle的名称，开关属性，使用环境等，下面的文件中表示有个show<em>user</em>name的feature，只在qa和staging环境中打开</p>
+<div class="highlight xml"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3</pre></td><td class="code"><pre>show_user_name:
+  switch: on
+  when: [qa,staging]<span class="nt">&lt;/pre&gt;</span>
+</pre></td></tr></tbody></table>
+</div></li>
+<li><p>实现解析配置文件的Ruby文件：这个文件最主要是在Object对象上实现一个方法，用于判断配置文件中定义的标志位的状态。</p></li>
+</ul>
+<div class="highlight ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6</pre></td><td class="code"><pre>    <span class="k">class</span> <span class="nc">Object</span>
+      <span class="k">def</span> <span class="nf">show_feature?</span> <span class="n">feature_name</span>
+        <span class="n">feature_toggle</span><span class="p">.</span><span class="nf">active?</span> <span class="n">feature_name</span>
+      <span class="k">end</span>
+      <span class="p">.</span><span class="nf">.</span><span class="p">.</span>
+    <span class="nf">end</span>
+</pre></td></tr></tbody></table>
+</div>
+
+<ul>
+<li>使用：调用show_feature?方法，并传入toggle的名称，以此来控制是否执行相关代码。</li>
+</ul>
+
+<p>从使用角度来说，并没有多大的难度，但下面两点必须要注意，否则会有很大的可能产生问题：</p>
+
+<ul>
+<li>Feature Toggle的应只针对尚未完成的功能，而不是作为选择功能的控制器。
+功能完成之后，就立刻删除与该feature相关的所有控制代码。特别要摒弃的思想是保留已经完成的功能，但是把该功能关掉，以备将来使用。这完全可以从源码控制工具中轻松得到，而一旦保留在代码中，就需要增加额外的维护成本。</li>
+<li>测试。
+对使用Feature Toggle的每个功能都需要测试打开与关闭两种场景，因为两种条件下可能都会对其他功能产生影响。我们的项目中曾出现过一个功能完成之后，就一直关闭，很长时间以后在产品环境中打开，因为觉得那个功能对其他都没有影响，但是却导致了系统异常。</li>
+</ul>
+
+<p>Feature Toggle是实现持续发布的重要手段，但当控制的条件较多时，就一定是什么地方出了问题，好用但不能滥用。</p>
+
+<p>下面的文章有有更加深入的解释：<a href="http://martinfowler.com/bliki/FeatureToggle.html">http://martinfowler.com/bliki/FeatureToggle.html</a></p>
+</div>
+  </article>
+  <div class="rows">
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'jiangpengsblog'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the
+  <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </div>
+  
+
+    </div>
+    
+    <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-20150563-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function () {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+
+</script>
+
+  </body>
+</html>
