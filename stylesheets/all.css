@@ -7811,335 +7811,6 @@ button.close {
   .nav-collapse.collapse {
     height: auto !important;
     overflow: visible !important; } }
-/* line 1, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.highlight {
-  background-color: #ffffcc; }
-
-/* line 2, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.c {
-  color: #999988;
-  font-style: italic; }
-
-/* Comment */
-/* line 3, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.err {
-  color: #a61717;
-  background-color: #e3d2d2; }
-
-/* Error */
-/* line 4, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.k {
-  color: #000000;
-  font-weight: bold; }
-
-/* Keyword */
-/* line 5, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.o {
-  color: #000000;
-  font-weight: bold; }
-
-/* Operator */
-/* line 6, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.cm {
-  color: #999988;
-  font-style: italic; }
-
-/* Comment.Multiline */
-/* line 7, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.cp {
-  color: #999999;
-  font-weight: bold;
-  font-style: italic; }
-
-/* Comment.Preproc */
-/* line 8, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.c1 {
-  color: #999988;
-  font-style: italic; }
-
-/* Comment.Single */
-/* line 9, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.cs {
-  color: #999999;
-  font-weight: bold;
-  font-style: italic; }
-
-/* Comment.Special */
-/* line 10, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.gd {
-  color: #000000;
-  background-color: #ffdddd; }
-
-/* Generic.Deleted */
-/* line 11, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.ge {
-  color: #000000;
-  font-style: italic; }
-
-/* Generic.Emph */
-/* line 12, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.gr {
-  color: #aa0000; }
-
-/* Generic.Error */
-/* line 13, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.gh {
-  color: #999999; }
-
-/* Generic.Heading */
-/* line 14, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.gi {
-  color: #000000;
-  background-color: #ddffdd; }
-
-/* Generic.Inserted */
-/* line 15, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.go {
-  color: #888888; }
-
-/* Generic.Output */
-/* line 16, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.gp {
-  color: #555555; }
-
-/* Generic.Prompt */
-/* line 17, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.gs {
-  font-weight: bold; }
-
-/* Generic.Strong */
-/* line 18, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.gu {
-  color: #aaaaaa; }
-
-/* Generic.Subheading */
-/* line 19, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.gt {
-  color: #aa0000; }
-
-/* Generic.Traceback */
-/* line 20, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.kc {
-  color: #000000;
-  font-weight: bold; }
-
-/* Keyword.Constant */
-/* line 21, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.kd {
-  color: #000000;
-  font-weight: bold; }
-
-/* Keyword.Declaration */
-/* line 22, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.kn {
-  color: #000000;
-  font-weight: bold; }
-
-/* Keyword.Namespace */
-/* line 23, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.kp {
-  color: #000000;
-  font-weight: bold; }
-
-/* Keyword.Pseudo */
-/* line 24, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.kr {
-  color: #000000;
-  font-weight: bold; }
-
-/* Keyword.Reserved */
-/* line 25, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.kt {
-  color: #445588;
-  font-weight: bold; }
-
-/* Keyword.Type */
-/* line 26, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.m {
-  color: #009999; }
-
-/* Literal.Number */
-/* line 27, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.s {
-  color: #d01040; }
-
-/* Literal.String */
-/* line 28, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.na {
-  color: #008080; }
-
-/* Name.Attribute */
-/* line 29, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.nb {
-  color: #0086B3; }
-
-/* Name.Builtin */
-/* line 30, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.nc {
-  color: #445588;
-  font-weight: bold; }
-
-/* Name.Class */
-/* line 31, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.no {
-  color: #008080; }
-
-/* Name.Constant */
-/* line 32, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.nd {
-  color: #3c5d5d;
-  font-weight: bold; }
-
-/* Name.Decorator */
-/* line 33, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.ni {
-  color: #800080; }
-
-/* Name.Entity */
-/* line 34, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.ne {
-  color: #990000;
-  font-weight: bold; }
-
-/* Name.Exception */
-/* line 35, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.nf {
-  color: #990000;
-  font-weight: bold; }
-
-/* Name.Function */
-/* line 36, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.nl {
-  color: #990000;
-  font-weight: bold; }
-
-/* Name.Label */
-/* line 37, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.nn {
-  color: #555555; }
-
-/* Name.Namespace */
-/* line 38, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.nt {
-  color: #000080; }
-
-/* Name.Tag */
-/* line 39, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.nv {
-  color: #008080; }
-
-/* Name.Variable */
-/* line 40, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.ow {
-  color: #000000;
-  font-weight: bold; }
-
-/* Operator.Word */
-/* line 41, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.w {
-  color: #bbbbbb; }
-
-/* Text.Whitespace */
-/* line 42, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.mf {
-  color: #009999; }
-
-/* Literal.Number.Float */
-/* line 43, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.mh {
-  color: #009999; }
-
-/* Literal.Number.Hex */
-/* line 44, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.mi {
-  color: #009999; }
-
-/* Literal.Number.Integer */
-/* line 45, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.mo {
-  color: #009999; }
-
-/* Literal.Number.Oct */
-/* line 46, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.sb {
-  color: #d01040; }
-
-/* Literal.String.Backtick */
-/* line 47, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.sc {
-  color: #d01040; }
-
-/* Literal.String.Char */
-/* line 48, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.sd {
-  color: #d01040; }
-
-/* Literal.String.Doc */
-/* line 49, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.s2 {
-  color: #d01040; }
-
-/* Literal.String.Double */
-/* line 50, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.se {
-  color: #d01040; }
-
-/* Literal.String.Escape */
-/* line 51, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.sh {
-  color: #d01040; }
-
-/* Literal.String.Heredoc */
-/* line 52, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.si {
-  color: #d01040; }
-
-/* Literal.String.Interpol */
-/* line 53, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.sx {
-  color: #d01040; }
-
-/* Literal.String.Other */
-/* line 54, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.sr {
-  color: #009926; }
-
-/* Literal.String.Regex */
-/* line 55, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.s1 {
-  color: #d01040; }
-
-/* Literal.String.Single */
-/* line 56, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.ss {
-  color: #990073; }
-
-/* Literal.String.Symbol */
-/* line 57, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.bp {
-  color: #999999; }
-
-/* Name.Builtin.Pseudo */
-/* line 58, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.vc {
-  color: #008080; }
-
-/* Name.Variable.Class */
-/* line 59, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.vg {
-  color: #008080; }
-
-/* Name.Variable.Global */
-/* line 60, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.vi {
-  color: #008080; }
-
-/* Name.Variable.Instance */
-/* line 61, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
-.il {
-  color: #009999; }
-
-/* Literal.Number.Integer.Long */
 /* line 1, /Users/twer/Project/github/blog-build/source/stylesheets/githubstyle.css.erb */
 .highlight table td {
   padding: 5px; }
@@ -8416,12 +8087,336 @@ button.close {
 .highlight {
   background-color: #f8f8f8; }
 
+/*.highlight { background-color: #ffffcc; }*/
+/* line 3, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.c {
+  color: #999988;
+  font-style: italic; }
+
+/* Comment */
+/* line 4, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.err {
+  color: #a61717;
+  background-color: #e3d2d2; }
+
+/* Error */
+/* line 5, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.k {
+  color: #000000;
+  font-weight: bold; }
+
+/* Keyword */
+/* line 6, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.o {
+  color: #000000;
+  font-weight: bold; }
+
+/* Operator */
+/* line 7, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.cm {
+  color: #999988;
+  font-style: italic; }
+
+/* Comment.Multiline */
+/* line 8, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.cp {
+  color: #999999;
+  font-weight: bold;
+  font-style: italic; }
+
+/* Comment.Preproc */
+/* line 9, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.c1 {
+  color: #999988;
+  font-style: italic; }
+
+/* Comment.Single */
+/* line 10, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.cs {
+  color: #999999;
+  font-weight: bold;
+  font-style: italic; }
+
+/* Comment.Special */
+/* line 11, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.gd {
+  color: #000000;
+  background-color: #ffdddd; }
+
+/* Generic.Deleted */
+/* line 12, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.ge {
+  color: #000000;
+  font-style: italic; }
+
+/* Generic.Emph */
+/* line 13, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.gr {
+  color: #aa0000; }
+
+/* Generic.Error */
+/* line 14, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.gh {
+  color: #999999; }
+
+/* Generic.Heading */
+/* line 15, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.gi {
+  color: #000000;
+  background-color: #ddffdd; }
+
+/* Generic.Inserted */
+/* line 16, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.go {
+  color: #888888; }
+
+/* Generic.Output */
+/* line 17, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.gp {
+  color: #555555; }
+
+/* Generic.Prompt */
+/* line 18, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.gs {
+  font-weight: bold; }
+
+/* Generic.Strong */
+/* line 19, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.gu {
+  color: #aaaaaa; }
+
+/* Generic.Subheading */
+/* line 20, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.gt {
+  color: #aa0000; }
+
+/* Generic.Traceback */
+/* line 21, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.kc {
+  color: #000000;
+  font-weight: bold; }
+
+/* Keyword.Constant */
+/* line 22, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.kd {
+  color: #000000;
+  font-weight: bold; }
+
+/* Keyword.Declaration */
+/* line 23, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.kn {
+  color: #000000;
+  font-weight: bold; }
+
+/* Keyword.Namespace */
+/* line 24, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.kp {
+  color: #000000;
+  font-weight: bold; }
+
+/* Keyword.Pseudo */
+/* line 25, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.kr {
+  color: #000000;
+  font-weight: bold; }
+
+/* Keyword.Reserved */
+/* line 26, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.kt {
+  color: #445588;
+  font-weight: bold; }
+
+/* Keyword.Type */
+/* line 27, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.m {
+  color: #009999; }
+
+/* Literal.Number */
+/* line 28, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.s {
+  color: #d01040; }
+
+/* Literal.String */
+/* line 29, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.na {
+  color: #008080; }
+
+/* Name.Attribute */
+/* line 30, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.nb {
+  color: #0086B3; }
+
+/* Name.Builtin */
+/* line 31, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.nc {
+  color: #445588;
+  font-weight: bold; }
+
+/* Name.Class */
+/* line 32, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.no {
+  color: #008080; }
+
+/* Name.Constant */
+/* line 33, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.nd {
+  color: #3c5d5d;
+  font-weight: bold; }
+
+/* Name.Decorator */
+/* line 34, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.ni {
+  color: #800080; }
+
+/* Name.Entity */
+/* line 35, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.ne {
+  color: #990000;
+  font-weight: bold; }
+
+/* Name.Exception */
+/* line 36, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.nf {
+  color: #990000;
+  font-weight: bold; }
+
+/* Name.Function */
+/* line 37, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.nl {
+  color: #990000;
+  font-weight: bold; }
+
+/* Name.Label */
+/* line 38, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.nn {
+  color: #555555; }
+
+/* Name.Namespace */
+/* line 39, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.nt {
+  color: #000080; }
+
+/* Name.Tag */
+/* line 40, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.nv {
+  color: #008080; }
+
+/* Name.Variable */
+/* line 41, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.ow {
+  color: #000000;
+  font-weight: bold; }
+
+/* Operator.Word */
+/* line 42, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.w {
+  color: #bbbbbb; }
+
+/* Text.Whitespace */
+/* line 43, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.mf {
+  color: #009999; }
+
+/* Literal.Number.Float */
+/* line 44, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.mh {
+  color: #009999; }
+
+/* Literal.Number.Hex */
+/* line 45, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.mi {
+  color: #009999; }
+
+/* Literal.Number.Integer */
+/* line 46, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.mo {
+  color: #009999; }
+
+/* Literal.Number.Oct */
+/* line 47, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.sb {
+  color: #d01040; }
+
+/* Literal.String.Backtick */
+/* line 48, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.sc {
+  color: #d01040; }
+
+/* Literal.String.Char */
+/* line 49, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.sd {
+  color: #d01040; }
+
+/* Literal.String.Doc */
+/* line 50, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.s2 {
+  color: #d01040; }
+
+/* Literal.String.Double */
+/* line 51, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.se {
+  color: #d01040; }
+
+/* Literal.String.Escape */
+/* line 52, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.sh {
+  color: #d01040; }
+
+/* Literal.String.Heredoc */
+/* line 53, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.si {
+  color: #d01040; }
+
+/* Literal.String.Interpol */
+/* line 54, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.sx {
+  color: #d01040; }
+
+/* Literal.String.Other */
+/* line 55, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.sr {
+  color: #009926; }
+
+/* Literal.String.Regex */
+/* line 56, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.s1 {
+  color: #d01040; }
+
+/* Literal.String.Single */
+/* line 57, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.ss {
+  color: #990073; }
+
+/* Literal.String.Symbol */
+/* line 58, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.bp {
+  color: #999999; }
+
+/* Name.Builtin.Pseudo */
+/* line 59, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.vc {
+  color: #008080; }
+
+/* Name.Variable.Class */
+/* line 60, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.vg {
+  color: #008080; }
+
+/* Name.Variable.Global */
+/* line 61, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.vi {
+  color: #008080; }
+
+/* Name.Variable.Instance */
+/* line 62, /Users/twer/Project/github/blog-build/source/stylesheets/github.css */
+.il {
+  color: #009999; }
+
+/* Literal.Number.Integer.Long */
 /* line 1, /Users/twer/Project/github/blog-build/source/stylesheets/line-numbers.css */
 pre {
   counter-reset: line-numbering;
-  border: solid 1px #d9d9d9;
-  border-radius: 0;
-  background-color: #fff;
+  border: none;
   padding: 0;
   line-height: 16px;
   margin-bottom: 30px;
@@ -8430,11 +8425,7 @@ pre {
   word-break: inherit;
   word-wrap: inherit; }
 
-/* line 15, /Users/twer/Project/github/blog-build/source/stylesheets/line-numbers.css */
-pre.highlight {
-  background-color: #fff; }
-
-/* line 18, /Users/twer/Project/github/blog-build/source/stylesheets/line-numbers.css */
+/* line 13, /Users/twer/Project/github/blog-build/source/stylesheets/line-numbers.css */
 pre .lineno {
   margin: 0;
   padding: 0 12px;
@@ -8442,11 +8433,11 @@ pre .lineno {
   border: none;
   color: #999; }
 
-/* line 26, /Users/twer/Project/github/blog-build/source/stylesheets/line-numbers.css */
+/* line 21, /Users/twer/Project/github/blog-build/source/stylesheets/line-numbers.css */
 td.gutter.gl {
   background-color: #eee; }
 
-/* line 30, /Users/twer/Project/github/blog-build/source/stylesheets/line-numbers.css */
+/* line 25, /Users/twer/Project/github/blog-build/source/stylesheets/line-numbers.css */
 pre a::before {
   content: counter(line-numbering);
   counter-increment: line-numbering;
@@ -8457,7 +8448,6 @@ pre a::before {
   opacity: 0.7;
   display: inline-block;
   color: #aaa;
-  background: #eee;
   margin-right: 16px;
   padding: 2px 10px;
   font-size: 13px;
@@ -8468,15 +8458,15 @@ pre a::before {
   -ms-user-select: none;
   user-select: none; }
 
-/* line 51, /Users/twer/Project/github/blog-build/source/stylesheets/line-numbers.css */
+/* line 45, /Users/twer/Project/github/blog-build/source/stylesheets/line-numbers.css */
 pre a:first-of-type::before {
   padding-top: 10px; }
 
-/* line 55, /Users/twer/Project/github/blog-build/source/stylesheets/line-numbers.css */
+/* line 49, /Users/twer/Project/github/blog-build/source/stylesheets/line-numbers.css */
 pre a:last-of-type::before {
   padding-bottom: 10px; }
 
-/* line 59, /Users/twer/Project/github/blog-build/source/stylesheets/line-numbers.css */
+/* line 53, /Users/twer/Project/github/blog-build/source/stylesheets/line-numbers.css */
 pre a:only-of-type::before {
   padding: 10px; }
 
@@ -8493,42 +8483,45 @@ pre a:only-of-type::before {
 
 /* line 2, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
 .article-container {
-  padding: 20px 40px; }
+  padding: 20px 0; }
   /* line 4, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+  .article-container .highlight {
+    margin: 10px 0; }
+  /* line 7, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
   .article-container p {
     margin-right: 0;
     font-size: 16px;
     line-height: 150%; }
-  /* line 9, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+  /* line 12, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
   .article-container h1 {
     text-align: center;
     margin-top: 0;
     font-size: 30px; }
-  /* line 14, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+  /* line 17, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
   .article-container .more-info {
     margin-bottom: 20px;
     padding-bottom: 20px;
     padding-top: 10px;
     border-bottom: 1px solid #aaa; }
-    /* line 19, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+    /* line 22, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
     .article-container .more-info .date {
       line-height: 22px; }
-    /* line 22, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+    /* line 25, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
     .article-container .more-info .tags-container {
       padding-left: 10px;
       border-left: 1px solid #aaa;
       margin: 0 0 0 10px;
       line-height: 20px; }
-      /* line 27, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+      /* line 30, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
       .article-container .more-info .tags-container .tag {
         padding: 2px; }
-  /* line 33, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+  /* line 36, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
   .article-container .right-col li {
     list-style: square; }
-  /* line 36, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+  /* line 39, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
   .article-container .right-col .about-detail {
     padding-left: 25px; }
-  /* line 41, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+  /* line 44, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
   .article-container .blog-content blockquote p {
     font-size: 14px; }
 

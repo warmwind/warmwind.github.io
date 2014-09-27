@@ -11,41 +11,44 @@
 
 /* line 2, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
 .article-container {
-  padding: 20px 40px; }
+  padding: 20px 0; }
   /* line 4, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+  .article-container .highlight {
+    margin: 10px 0; }
+  /* line 7, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
   .article-container p {
     margin-right: 0;
     font-size: 16px;
     line-height: 150%; }
-  /* line 9, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+  /* line 12, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
   .article-container h1 {
     text-align: center;
     margin-top: 0;
     font-size: 30px; }
-  /* line 14, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+  /* line 17, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
   .article-container .more-info {
     margin-bottom: 20px;
     padding-bottom: 20px;
     padding-top: 10px;
     border-bottom: 1px solid #aaa; }
-    /* line 19, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+    /* line 22, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
     .article-container .more-info .date {
       line-height: 22px; }
-    /* line 22, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+    /* line 25, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
     .article-container .more-info .tags-container {
       padding-left: 10px;
       border-left: 1px solid #aaa;
       margin: 0 0 0 10px;
       line-height: 20px; }
-      /* line 27, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+      /* line 30, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
       .article-container .more-info .tags-container .tag {
         padding: 2px; }
-  /* line 33, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+  /* line 36, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
   .article-container .right-col li {
     list-style: square; }
-  /* line 36, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+  /* line 39, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
   .article-container .right-col .about-detail {
     padding-left: 25px; }
-  /* line 41, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+  /* line 44, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
   .article-container .blog-content blockquote p {
     font-size: 14px; }

@@ -5,10 +5,131 @@
   <id>http://jiangpeng.info/</id>
   <link href="http://jiangpeng.info/"/>
   <link href="http://jiangpeng.info/feed.xml" rel="self"/>
-  <updated>2014-08-26T08:00:00+08:00</updated>
+  <updated>2014-09-26T08:00:00+08:00</updated>
   <author>
     <name>姜鹏</name>
   </author>
+  <entry>
+    <title>Rails CSRF token 探秘</title>
+    <link rel="alternate" href="/blogs/2014/09/26/secret-of-rails-csrf-token.html"/>
+    <id>/blogs/2014/09/26/secret-of-rails-csrf-token.html</id>
+    <published>2014-09-26T08:00:00+08:00</published>
+    <updated>2014-09-26T08:00:00+08:00</updated>
+    <author>
+      <name>姜鹏</name>
+    </author>
+    <content type="html">&lt;p&gt;&lt;a href="http://guides.rubyonrails.org/security.html#cross-site-request-forgery-csrf"&gt;CSRF&lt;/a&gt;(Cross-Site Request Forgery)是一种常见的攻击手段，Rails中下面的代码帮助我们的应用来阻止CSRF攻击。&lt;/p&gt;
+&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4
+5&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;ApplicationController&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="no"&gt;ActionController&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="no"&gt;Base&lt;/span&gt;
+  &lt;span class="c1"&gt;# Prevent CSRF attacks by raising an exception.&lt;/span&gt;
+  &lt;span class="c1"&gt;# For APIs, you may want to use :null_session instead.&lt;/span&gt;
+  &lt;span class="n"&gt;protect_from_forgery&lt;/span&gt; &lt;span class="ss"&gt;with: :exception&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;这段代码是Rails4自动生成的，这里使用了&lt;code&gt;with: :exception&lt;/code&gt;设置了对在&lt;code&gt;handle_unverified_request&lt;/code&gt;使用的策略是抛出异常&lt;code&gt;ActionController::InvalidAuthenticityToken&lt;/code&gt;。 Rails3中默认使用的&lt;code&gt;reset_session&lt;/code&gt;。
+Rails防止CSRF的机制是在表单中随机生成一个authenticity_token，同时存储于表单的隐藏域以及当前的session中，当表单提交时，而server端就可以比较这两处的是否一致来做出判断，判断请求的来源是否可靠，因为第三方是无法知道session中的token的。&lt;/p&gt;
+&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="c1"&gt;# Sets the token value for the current session.&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;form_authenticity_token&lt;/span&gt;
+  &lt;span class="n"&gt;session&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="ss"&gt;:_csrf_token&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;||=&lt;/span&gt; &lt;span class="no"&gt;SecureRandom&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;base64&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;32&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;div class="highlight html"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="nt"&gt;&amp;lt;div&lt;/span&gt; &lt;span class="na"&gt;style=&lt;/span&gt;&lt;span class="s"&gt;"margin:0;padding:0;display:inline"&lt;/span&gt;&lt;span class="nt"&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;lt;input&lt;/span&gt; &lt;span class="na"&gt;name=&lt;/span&gt;&lt;span class="s"&gt;"utf8"&lt;/span&gt; &lt;span class="na"&gt;type=&lt;/span&gt;&lt;span class="s"&gt;"hidden"&lt;/span&gt; &lt;span class="na"&gt;value=&lt;/span&gt;&lt;span class="s"&gt;"✓"&lt;/span&gt;&lt;span class="nt"&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;lt;input&lt;/span&gt; &lt;span class="na"&gt;name=&lt;/span&gt;&lt;span class="s"&gt;"authenticity_token"&lt;/span&gt; &lt;span class="na"&gt;type=&lt;/span&gt;&lt;span class="s"&gt;"hidden"&lt;/span&gt; &lt;span class="na"&gt;value=&lt;/span&gt;&lt;span class="s"&gt;"EZWDs44j5vzY+DCsgTHL0iPYiOUwaFnemwtGmo2AVRM="&lt;/span&gt;&lt;span class="nt"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="nt"&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;当然，这些都是正常情况，当表单要作为ajax提交，也就是&lt;code&gt;data-remote=true&lt;/code&gt;时，情况就不同了，默认配置下，&lt;code&gt;authenticityt_token&lt;/code&gt;不再自动生成。如果是Rails3就会发现session中的信息不见了，如果是把user_id存储在session中的，当然登录的状态就改变了。如果是Rails4，默认就会得到上面提到的&lt;code&gt;InvalidAuthenticityToken&lt;/code&gt;异常。&lt;/p&gt;
+&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="c1"&gt;#form_tag_helper.rb&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;html_options_for_form&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;url_for_options&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+   &lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;stringify_keys&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;tap&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;html_options&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+     &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;.&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+     &lt;span class="nf"&gt;if&lt;/span&gt; &lt;span class="n"&gt;html_options&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"data-remote"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;
+        &lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="n"&gt;embed_authenticity_token_in_remote_forms&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;
+        &lt;span class="n"&gt;html_options&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"authenticity_token"&lt;/span&gt;&lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="nf"&gt;blank?&lt;/span&gt;
+       &lt;span class="c1"&gt;# The authenticity token is taken from the meta tag in this case&lt;/span&gt;
+       &lt;span class="n"&gt;html_options&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"authenticity_token"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kp"&gt;false&lt;/span&gt;
+     &lt;span class="k"&gt;elsif&lt;/span&gt; &lt;span class="n"&gt;html_options&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"authenticity_token"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="kp"&gt;true&lt;/span&gt;
+       &lt;span class="c1"&gt;# Include the default authenticity_token, which is only generated when its set to nil,&lt;/span&gt;
+       &lt;span class="c1"&gt;# but we needed the true value to override the default of no authenticity_token on data-remote.&lt;/span&gt;
+       &lt;span class="n"&gt;html_options&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"authenticity_token"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kp"&gt;nil&lt;/span&gt;
+     &lt;span class="k"&gt;end&lt;/span&gt;
+   &lt;span class="k"&gt;end&lt;/span&gt;
+ &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;上面代码的5-14行可以看到生成token时的配置判断，从中也可以得到解决的两种办法：&lt;/p&gt;
+
+&lt;p&gt;1. 配置&lt;/p&gt;
+&lt;div class="highlight plaintext"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;config.action_view.embed_authenticity_token_in_remote_forms = true
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;2. 通过JS获取&lt;/p&gt;
+
+&lt;p&gt;其实在默认的layout中，一般会有一行&lt;code&gt;&amp;lt;%= csrf_meta_tags %&amp;gt;&lt;/code&gt;，它的定义是：&lt;/p&gt;
+&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4
+5
+6
+7
+8&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;csrf_meta_tags&lt;/span&gt;
+  &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;protect_against_forgery?&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;
+      &lt;span class="n"&gt;tag&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'meta'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:name&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;'csrf-param'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:content&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;request_forgery_protection_token&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+      &lt;span class="n"&gt;tag&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'meta'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:name&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;'csrf-token'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:content&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;form_authenticity_token&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="nf"&gt;join&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;html_safe&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;它在页面的head中增加一个&lt;code&gt;csrf-token&lt;/code&gt;的属性&lt;/p&gt;
+&lt;div class="highlight html"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;meta content="authenticity_token" name="csrf-param" /&amp;gt;
+meta content="VY13wlC2rgGccbkxyvm7Z1WX4LKH+71vzIj+8Um0QO8=" name="csrf-token" /&amp;gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;这与表单渲染出的authenticity_token是完全一致的，所以这就给了我们通过js来给表单设置authenticity_token的办法，如下&lt;/p&gt;
+&lt;div class="highlight javascript"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="c1"&gt;//application.js&lt;/span&gt;
+&lt;span class="nx"&gt;$&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'input[name=authenticity_token]'&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nx"&gt;val&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;$&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'meta[name=csrf-token]'&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nx"&gt;attr&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'content'&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+</content>
+  </entry>
   <entry>
     <title>Tricks On Upgrading Rails From 3.2 to 4.0</title>
     <link rel="alternate" href="/blogs/2014/08/26/tricks-on-upgrading-rails-from-3-2-to-4-0.html"/>
@@ -457,44 +578,6 @@ nginx在处理request时是有一定顺序的，例如下面的定义中，nginx
 &lt;h4&gt;sanitize&lt;/h4&gt;
 
 &lt;p&gt;它提供了比h方法更加灵活转义策略，可以自定义不需要转义的tag。例如需要在页面显示让用自定义某些style时，就可以可以允许&amp;lt;style&amp;gt;标签，而不将其转义。&lt;/p&gt;
-</content>
-  </entry>
-  <entry>
-    <title>Build Phonegap Application using CoffeeScipt Scss and Haml</title>
-    <link rel="alternate" href="/blogs/2013/06/04/build-phonegap-using-coffee-scss-haml.html"/>
-    <id>/blogs/2013/06/04/build-phonegap-using-coffee-scss-haml.html</id>
-    <published>2013-06-04T08:00:00+08:00</published>
-    <updated>2013-06-04T08:00:00+08:00</updated>
-    <author>
-      <name>姜鹏</name>
-    </author>
-    <content type="html">&lt;p&gt;Refer to &lt;a href="https://github.com/warmwind/phonegap-scaffold"&gt;phonegap-scaffold&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;a href="http://phonegap.com/"&gt;PhoneGap&lt;/a&gt; is a tool that allows developer to build cross platform mobile native application using javascript, html and css. &lt;/p&gt;
-
-&lt;p&gt;This is great, however, the raw js, html and css is outdate. There are plenty of techniques that can be used to improve the efficiency. For example, &lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="http://coffeescript.org/"&gt;CoffeeScript&lt;/a&gt; for javascript&lt;/li&gt;
-&lt;li&gt;&lt;a href="http://haml.info/"&gt;Haml&lt;/a&gt; for html&lt;/li&gt;
-&lt;li&gt;&lt;a href="http://sass-lang.com/"&gt;Scss&lt;/a&gt; for css&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;/p&gt;
-
-&lt;p&gt;All of these &amp;ldquo;new&amp;rdquo; tech have clear syntax and can be easiliy compiled to raw files.&lt;/p&gt;
-
-&lt;p&gt;For development purpose, we also need:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Autocompile to raw files&lt;/li&gt;
-&lt;li&gt;Rake tasks to run test. Jasmine for JavaScript&lt;/li&gt;
-&lt;li&gt;Different urls for different environment. (developement, uat, production, etc)&lt;/li&gt;
-&lt;li&gt;Rake tasks to deploy app to simulators for quick look&lt;/li&gt;
-&lt;li&gt;Ajust styles in browser, no need to deploy each time&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;So I create a repo in github called &lt;a href="https://github.com/warmwind/phonegap-scaffold"&gt;phonegap-scaffold&lt;/a&gt;. &lt;/p&gt;
 </content>
   </entry>
 </feed>
