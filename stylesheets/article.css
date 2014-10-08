@@ -9,46 +9,68 @@
   .clearfix:after {
     clear: both; }
 
-/* line 2, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
-.article-container {
-  padding: 20px 0; }
-  /* line 4, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
-  .article-container .highlight {
-    margin: 10px 0; }
-  /* line 7, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
-  .article-container p {
-    margin-right: 0;
-    font-size: 16px;
-    line-height: 150%; }
-  /* line 12, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
-  .article-container h1 {
-    text-align: center;
-    margin-top: 0;
-    font-size: 30px; }
-  /* line 17, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
-  .article-container .more-info {
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    padding-top: 10px;
-    border-bottom: 1px solid #aaa; }
-    /* line 22, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
-    .article-container .more-info .date {
-      line-height: 22px; }
-    /* line 25, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
-    .article-container .more-info .tags-container {
-      padding-left: 10px;
-      border-left: 1px solid #aaa;
-      margin: 0 0 0 10px;
-      line-height: 20px; }
-      /* line 30, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
-      .article-container .more-info .tags-container .tag {
-        padding: 2px; }
-  /* line 36, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
-  .article-container .right-col li {
-    list-style: square; }
-  /* line 39, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
-  .article-container .right-col .about-detail {
-    padding-left: 25px; }
-  /* line 44, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+/* line 3, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+.article-container .highlight {
+  margin: 10px 0; }
+/* line 6, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+.article-container p {
+  margin-right: 0;
+  font-size: 16px;
+  line-height: 150%; }
+/* line 11, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+.article-container h1 {
+  text-align: center;
+  margin-top: 0;
+  font-size: 26px;
+  padding: 10px 15px; }
+/* line 17, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+.article-container .article-info {
+  line-height: 150%; }
+  /* line 19, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+  .article-container .article-info .date {
+    margin-right: 5px; }
+  /* line 22, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+  .article-container .article-info .tags-container {
+    margin-bottom: 0;
+    padding-left: 0;
+    display: inline-block;
+    *display: inline;
+    /* IE7 inline-block hack */
+    *zoom: 1; }
+    /* line 26, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+    .article-container .article-info .tags-container .tag {
+      font-size: 12px;
+      list-style: none;
+      display: inline-block;
+      *display: inline;
+      /* IE7 inline-block hack */
+      *zoom: 1;
+      background: #aaa;
+      padding: 5px;
+      letter-spacing: 1px; }
+      /* line 33, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+      .article-container .article-info .tags-container .tag a {
+        color: white; }
+/* line 41, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+.article-container .blog-content {
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
+  margin-top: 10px; }
+  /* line 45, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
   .article-container .blog-content blockquote p {
     font-size: 14px; }
+  /* line 48, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+  .article-container .blog-content pre {
+    background-color: transparent;
+    white-space: pre-wrap;
+    word-break: break-word;
+    word-wrap: break-word; }
+  /* line 54, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+  .article-container .blog-content a, .article-container .blog-content code {
+    word-break: break-all;
+    word-wrap: break-all; }
+
+@media (max-width: 767px) {
+  /* line 62, /Users/twer/Project/github/blog-build/source/stylesheets/article.css.scss */
+  .jiathis_style_24x24 {
+    display: none; } }

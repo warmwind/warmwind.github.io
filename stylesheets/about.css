@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /* line 23, /Users/twer/Project/github/blog-build/source/stylesheets/_mixins.scss */
 .clearfix {
   *zoom: 1; }
@@ -9,25 +10,32 @@
   .clearfix:after {
     clear: both; }
 
-/* line 4, /Users/twer/Project/github/blog-build/source/stylesheets/about.css.scss */
-.container .about .img {
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
-  border-radius: 0; }
-/* line 8, /Users/twer/Project/github/blog-build/source/stylesheets/about.css.scss */
-.container .about .details li {
-  display: initial;
-  margin-right: 20px; }
+/* line 3, /Users/twer/Project/github/blog-build/source/stylesheets/about.css.scss */
+.about h1 {
+  font-size: 22px;
+  display: inline-block;
+  *display: inline;
+  /* IE7 inline-block hack */
+  *zoom: 1; }
+/* line 7, /Users/twer/Project/github/blog-build/source/stylesheets/about.css.scss */
+.about ul.social {
+  display: inline-block;
+  *display: inline;
+  /* IE7 inline-block hack */
+  *zoom: 1;
+  list-style: none;
+  padding-left: 10px; }
   /* line 11, /Users/twer/Project/github/blog-build/source/stylesheets/about.css.scss */
-  .container .about .details li .add-weibo {
-    display: inline-block;
-    height: 15px; }
-/* line 16, /Users/twer/Project/github/blog-build/source/stylesheets/about.css.scss */
-.container .about .details img {
-  width: 20px;
-  height: 20px;
-  margin-right: 5px; }
-  /* line 20, /Users/twer/Project/github/blog-build/source/stylesheets/about.css.scss */
-  .container .about .details img.github {
-    width: 25px;
-    height: 25px; }
+  .about ul.social li {
+    display: initial;
+    margin-right: 6px; }
+    /* line 14, /Users/twer/Project/github/blog-build/source/stylesheets/about.css.scss */
+    .about ul.social li i {
+      font-size: 18px;
+      color: #555; }
+      /* line 17, /Users/twer/Project/github/blog-build/source/stylesheets/about.css.scss */
+      .about ul.social li i:hover {
+        color: #222; }
+      /* line 20, /Users/twer/Project/github/blog-build/source/stylesheets/about.css.scss */
+      .about ul.social li i.fa-douban:after {
+        content: '豆'; }
