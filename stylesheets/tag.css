@@ -1,8 +1,1 @@
-/* line 2, /Users/twer/Project/github/blog-build/source/stylesheets/tag.css.scss */
-.tags-result-container .tag {
-  background: #222;
-  padding: 12px;
-  letter-spacing: 1px;
-  color: white;
-  margin: 10px 0;
-  display: inline-block; }
+.tags-result-container .tag{background:#222;padding:12px;letter-spacing:1px;color:white;margin:10px 0;display:inline-block}

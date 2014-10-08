@@ -1,88 +1,4 @@
-
-
-<!doctype html>
-<html xmlns:wb=“http://open.weibo.com/wb”>
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv='X-UA-Compatible' content='IE=edge;chrome=1' />
-    <meta name="keywords" content="jiang peng,姜鹏,warmwind,Metaprogramming,Ruby">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
-    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    <link href="/stylesheets/all.css" rel="stylesheet" type="text/css" />
-    <script src="/javascripts/application.js" type="text/javascript"></script>
-
-    <script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js" type="text/javascript" charset="utf-8"></script>
-    <script src="https://squaresend.com/squaresend.js"></script>
-    <title>Inside Ruby: Object Model - Jiang Peng</title>
-
-  </head>
-  <body>
-    <nav class="navbar  navbar-default navbar-fixed-top" role="navigation">
-      <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-list">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="/"><img alt="" height="80" src="http://gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg" width="80" />
-            <span class="title">Jiang Peng</span>
-          </a>
-        </div>
-
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="navbar-collapse-list">
-          <ul class="nav navbar-nav navbar-right">
-              <li class='active'><a href="/index.html">所有文章</a></li>
-  <li class='apps-menu'><a href="/apps.html">小程序们</a></li>
-  <li><a href="/about.html">关于我</a></li>
-  <li class='rss'><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li>
-
-          </ul>
-        </div><!-- /.navbar-collapse -->
-      </div><!-- /.container-fluid -->
-    </nav>
-    <div class="container-fluid main-content">
-        <article class='article-container clearfix'>
-    <div class="row">
-      <h1>Inside Ruby: Object Model</h1>  
-    </div>
-    <div class="row article-info">
-      <div class="col-xs-12 col-sm-10 col-md-10">
-        <span class="date"> 2 Feb 2012</span>
-        <ul class= 'tags-container'>
-    <li class='tag'><a href="/blogs/tags/metaprogramming.html">Metaprogramming</a></li>
-    <li class='tag'><a href="/blogs/tags/ruby.html">Ruby</a></li>
-</ul>
-
-      </div>
-      <!-- JiaThis Button BEGIN -->
-      <div class="jiathis_style_24x24 col-xs-12 col-sm-2">
-        <a class="jiathis_button_weixin"></a>
-        <a class="jiathis_button_tsina"></a>
-        <a class="jiathis_button_tqq"></a>
-      </div>
-      <script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1358051221670389" charset="utf-8"></script>
-      <!-- JiaThis Button END -->
-    </div>
-    <div class="blog-content"><p>今天来重新了解一下ruby的Object Model，之所以是重新，因为是从内部来看，而不是从外部的使用上。</p>
-
-<p>1. object
-object = instance variables + methods(包括一个指向所属class的方法)。使用object.instance_variables 和object.methods可以查看对应的信息, 区别在于前者存在于object本身，而method存在于object的class中，这些method在class中被称作instance method，这也是为什么同一个class不同object可以共享方法，但是不能共享instance variable。</p>
-
-<p>2. class
-class也是一个object，是Class的实例，拥有instance methods和指向父类的方法superclass。Class是Module的子类，所以一个class也是一个module。</p>
-
-<p>3. module
-module与class没有根本差别，因为class本身就是module的子类，但是引入module与class的目的是不同的。通常来说，class用来实例化和继承，而module用来mix in或者作为namespace。
-
-下面的代码片段展示了部分上述内容</p>
-<div class="highlight ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+<!doctype html> <html xmlns:wb=“http://open.weibo.com/wb”> <head> <meta charset=utf-8 /> <meta http-equiv=X-UA-Compatible content='IE=edge;chrome=1'/> <meta name=keywords content="jiang peng,姜鹏,warmwind,Metaprogramming,Ruby"> <meta name=viewport content="width=device-width, initial-scale=1"> <link href="/stylesheets/all.css" rel=stylesheet /> <script src="/javascripts/application.js"></script> <title>Inside Ruby: Object Model - Jiang Peng</title> </head> <body> <nav class="navbar navbar-default navbar-fixed-top" role=navigation> <div class=container-fluid> <div class=navbar-header> <button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target="#navbar-collapse-list"> <span class=sr-only>Toggle navigation</span> <span class=icon-bar></span> <span class=icon-bar></span> <span class=icon-bar></span> </button> <a class=navbar-brand href="/"><img alt="" height=80 src="//gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg" width=80 /> <span class=title>Jiang Peng</span> </a> </div> <div class="collapse navbar-collapse" id=navbar-collapse-list> <ul class="nav navbar-nav navbar-right"> <li class=active><a href="/index.html">所有文章</a></li> <li class=apps-menu><a href="/apps.html">小程序们</a></li> <li><a href="/about.html">关于我</a></li> <li class=rss><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li> </ul> </div> </div> </nav> <div class="container-fluid main-content"> <article class='article-container clearfix'> <div class=row> <h1>Inside Ruby: Object Model</h1> </div> <div class="row article-info"> <div class="col-xs-12 col-sm-10 col-md-10"> <span class=date> 2 Feb 2012</span> <ul class=tags-container> <li class=tag><a href="/blogs/tags/metaprogramming.html">Metaprogramming</a></li> <li class=tag><a href="/blogs/tags/ruby.html">Ruby</a></li> </ul> </div> <div class="jiathis_style_24x24 col-xs-12 col-sm-2"> <a class=jiathis_button_weixin></a> <a class=jiathis_button_tsina></a> <a class=jiathis_button_tqq></a> </div> <script src="//v3.jiathis.com/code/jia.js?uid=1358051221670389" charset=utf-8></script> </div> <div class=blog-content><p>今天来重新了解一下ruby的Object Model，之所以是重新，因为是从内部来看，而不是从外部的使用上。</p> <p>1. object object = instance variables + methods(包括一个指向所属class的方法)。使用object.instance_variables 和object.methods可以查看对应的信息, 区别在于前者存在于object本身，而method存在于object的class中，这些method在class中被称作instance method，这也是为什么同一个class不同object可以共享方法，但是不能共享instance variable。</p> <p>2. class class也是一个object，是Class的实例，拥有instance methods和指向父类的方法superclass。Class是Module的子类，所以一个class也是一个module。</p> <p>3. module module与class没有根本差别，因为class本身就是module的子类，但是引入module与class的目的是不同的。通常来说，class用来实例化和继承，而module用来mix in或者作为namespace。 下面的代码片段展示了部分上述内容</p> <div class="highlight ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class=lineno>1
 2
 3
 4
@@ -96,7 +12,7 @@ module与class没有根本差别，因为class本身就是module的子类，但�
 12
 13
 14
-15</pre></td><td class="code"><pre><span class="k">class</span> <span class="nc">MyClass</span>
+15</pre></td><td class=code><pre><span class="k">class</span> <span class="nc">MyClass</span>
   <span class="k">def</span> <span class="nf">my_method</span>
     <span class="vi">@v</span> <span class="o">=</span> <span class="s1">'instance variable'</span>
   <span class="k">end</span>
@@ -111,13 +27,7 @@ module与class没有根本差别，因为class本身就是module的子类，但�
 <span class="no">Class</span><span class="p">.</span><span class="nf">superclass</span>     <span class="c1"># =&gt; Module</span>
 <span class="no">Module</span><span class="p">.</span><span class="nf">superclass</span>    <span class="c1"># =&gt; Object</span>
 <span class="no">MyClass</span><span class="p">.</span><span class="nf">superclass</span>   <span class="c1"># =&gt; Object</span>
-</pre></td></tr></tbody></table>
-</div>
-
-<p>4. include</p>
-
-<p>先看下面的代码</p>
-<div class="highlight ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+</pre></td></tr></tbody></table> </div> <p>4. include</p> <p>先看下面的代码</p> <div class="highlight ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class=lineno>1
 2
 3
 4
@@ -127,7 +37,7 @@ module与class没有根本差别，因为class本身就是module的子类，但�
 8
 9
 10
-11</pre></td><td class="code"><pre><span class="k">module</span> <span class="nn">A</span><span class="p">;</span> <span class="k">end</span>
+11</pre></td><td class=code><pre><span class="k">module</span> <span class="nn">A</span><span class="p">;</span> <span class="k">end</span>
 <span class="k">module</span> <span class="nn">B</span><span class="p">;</span> <span class="k">end</span>
 
 <span class="k">class</span> <span class="nc">BaseClass</span><span class="p">;</span> <span class="k">end</span>
@@ -138,19 +48,7 @@ module与class没有根本差别，因为class本身就是module的子类，但�
 
 <span class="no">MyClass</span><span class="p">.</span><span class="nf">ancestors</span>   <span class="c1"># =&gt; [MyClass, B, A, BaseClass, Object, Kernel, BasicObject]</span>
 <span class="no">MyClass</span><span class="p">.</span><span class="nf">superclass</span>  <span class="c1"># =&gt; BaseClass</span>
-</pre></td></tr></tbody></table>
-</div>
-
-<p>在面向对象的语言中，当我们调用方法的时候，首先会在当前类中寻找，如果找不到，则会去父类中，然后是父类的父类。Ruby中提供了一个superclass方法，顾名思义是返回父类，但是Ruby并不是按照superclass的返回结果层层向上寻找方法。与Java和C#一样，Ruby不允许多继承，但是Module的引入使得它有所不同，不同在于，Ruby是按照ancestors的返回结果来寻找，这个ancestor tree中包含了class和module。</p>
-
-<p>所以，Ruby查找方法的顺序为：当前类 -&gt; include的module的逆序，-&gt; 继承的父类。原因在于 ，Ruby中，当在一个class中include一个module时，它会创建一个匿名类，包装那个module，并且将这个匿名类插入祖先树中，仅仅在当前类之上。而superclass对此一无所知。</p>
-
-<p><a href="http://book.douban.com/subject/4086938/&quot;">《Metaprogramming Ruby》</a>一书对这些有非常详细的解释，推荐参考。</p>
-</div>
-  </article>
-  <div class="rows">
-    <div id="disqus_thread"></div>
-<script type="text/javascript">
+</pre></td></tr></tbody></table> </div> <p>在面向对象的语言中，当我们调用方法的时候，首先会在当前类中寻找，如果找不到，则会去父类中，然后是父类的父类。Ruby中提供了一个superclass方法，顾名思义是返回父类，但是Ruby并不是按照superclass的返回结果层层向上寻找方法。与Java和C#一样，Ruby不允许多继承，但是Module的引入使得它有所不同，不同在于，Ruby是按照ancestors的返回结果来寻找，这个ancestor tree中包含了class和module。</p> <p>所以，Ruby查找方法的顺序为：当前类 -&gt; include的module的逆序，-&gt; 继承的父类。原因在于 ，Ruby中，当在一个class中include一个module时，它会创建一个匿名类，包装那个module，并且将这个匿名类插入祖先树中，仅仅在当前类之上。而superclass对此一无所知。</p> <p><a href="//book.douban.com/subject/4086938/&quot;">《Metaprogramming Ruby》</a>一书对这些有非常详细的解释，推荐参考。</p> </div> </article> <div class=rows> <div id=disqus_thread></div> <script>
     /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
     var disqus_shortname = 'jiangpengsblog'; // required: replace example with your forum shortname
 
@@ -162,16 +60,7 @@ module与class没有根本差别，因为class本身就是module的子类，但�
         dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
-</script>
-<noscript>Please enable JavaScript to view the
-  <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-  </div>
-  
-
-    </div>
-    
-    <script type="text/javascript">
+</script> <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> <a href="//disqus.com" class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a> </div> </div> <script>
 
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', 'UA-20150563-1']);
@@ -186,7 +75,4 @@ module与class没有根本差别，因为class本身就是module的子类，但�
         s.parentNode.insertBefore(ga, s);
     })();
 
-</script>
-
-  </body>
-</html>
+</script> </body> </html>

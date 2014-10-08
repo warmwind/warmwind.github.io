@@ -1,94 +1,9 @@
-
-
-<!doctype html>
-<html xmlns:wb=“http://open.weibo.com/wb”>
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv='X-UA-Compatible' content='IE=edge;chrome=1' />
-    <meta name="keywords" content="jiang peng,姜鹏,warmwind,CoffeeScript,Javascript">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
-    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    <link href="/stylesheets/all.css" rel="stylesheet" type="text/css" />
-    <script src="/javascripts/application.js" type="text/javascript"></script>
-
-    <script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js" type="text/javascript" charset="utf-8"></script>
-    <script src="https://squaresend.com/squaresend.js"></script>
-    <title>Inside CoffeeScript：语法强壮 - Jiang Peng</title>
-
-  </head>
-  <body>
-    <nav class="navbar  navbar-default navbar-fixed-top" role="navigation">
-      <div class="container-fluid">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-list">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="/"><img alt="" height="80" src="http://gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg" width="80" />
-            <span class="title">Jiang Peng</span>
-          </a>
-        </div>
-
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="navbar-collapse-list">
-          <ul class="nav navbar-nav navbar-right">
-              <li class='active'><a href="/index.html">所有文章</a></li>
-  <li class='apps-menu'><a href="/apps.html">小程序们</a></li>
-  <li><a href="/about.html">关于我</a></li>
-  <li class='rss'><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li>
-
-          </ul>
-        </div><!-- /.navbar-collapse -->
-      </div><!-- /.container-fluid -->
-    </nav>
-    <div class="container-fluid main-content">
-        <article class='article-container clearfix'>
-    <div class="row">
-      <h1>Inside CoffeeScript：语法强壮</h1>  
-    </div>
-    <div class="row article-info">
-      <div class="col-xs-12 col-sm-10 col-md-10">
-        <span class="date">26 May 2012</span>
-        <ul class= 'tags-container'>
-    <li class='tag'><a href="/blogs/tags/coffeescript.html">CoffeeScript</a></li>
-    <li class='tag'><a href="/blogs/tags/javascript.html">Javascript</a></li>
-</ul>
-
-      </div>
-      <!-- JiaThis Button BEGIN -->
-      <div class="jiathis_style_24x24 col-xs-12 col-sm-2">
-        <a class="jiathis_button_weixin"></a>
-        <a class="jiathis_button_tsina"></a>
-        <a class="jiathis_button_tqq"></a>
-      </div>
-      <script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1358051221670389" charset="utf-8"></script>
-      <!-- JiaThis Button END -->
-    </div>
-    <div class="blog-content"><p>前一篇文章主要说了CoffeeScript的语法强大的几点，它极大的简化了JS的语法，更清晰简洁，另外很重要的一点是它从语法本身的角度避免了JS的若干陷阱。</p>
-
-<p>1. ==</p>
-
-<p>JS中，使用双等号比较时，它会尝试进行类型转换再比较，这就导致了下面的几个问题</p>
-<div class="highlight javascript"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+<!doctype html> <html xmlns:wb=“http://open.weibo.com/wb”> <head> <meta charset=utf-8 /> <meta http-equiv=X-UA-Compatible content='IE=edge;chrome=1'/> <meta name=keywords content="jiang peng,姜鹏,warmwind,CoffeeScript,Javascript"> <meta name=viewport content="width=device-width, initial-scale=1"> <link href="/stylesheets/all.css" rel=stylesheet /> <script src="/javascripts/application.js"></script> <title>Inside CoffeeScript：语法强壮 - Jiang Peng</title> </head> <body> <nav class="navbar navbar-default navbar-fixed-top" role=navigation> <div class=container-fluid> <div class=navbar-header> <button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target="#navbar-collapse-list"> <span class=sr-only>Toggle navigation</span> <span class=icon-bar></span> <span class=icon-bar></span> <span class=icon-bar></span> </button> <a class=navbar-brand href="/"><img alt="" height=80 src="//gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg" width=80 /> <span class=title>Jiang Peng</span> </a> </div> <div class="collapse navbar-collapse" id=navbar-collapse-list> <ul class="nav navbar-nav navbar-right"> <li class=active><a href="/index.html">所有文章</a></li> <li class=apps-menu><a href="/apps.html">小程序们</a></li> <li><a href="/about.html">关于我</a></li> <li class=rss><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li> </ul> </div> </div> </nav> <div class="container-fluid main-content"> <article class='article-container clearfix'> <div class=row> <h1>Inside CoffeeScript：语法强壮</h1> </div> <div class="row article-info"> <div class="col-xs-12 col-sm-10 col-md-10"> <span class=date>26 May 2012</span> <ul class=tags-container> <li class=tag><a href="/blogs/tags/coffeescript.html">CoffeeScript</a></li> <li class=tag><a href="/blogs/tags/javascript.html">Javascript</a></li> </ul> </div> <div class="jiathis_style_24x24 col-xs-12 col-sm-2"> <a class=jiathis_button_weixin></a> <a class=jiathis_button_tsina></a> <a class=jiathis_button_tqq></a> </div> <script src="//v3.jiathis.com/code/jia.js?uid=1358051221670389" charset=utf-8></script> </div> <div class=blog-content><p>前一篇文章主要说了CoffeeScript的语法强大的几点，它极大的简化了JS的语法，更清晰简洁，另外很重要的一点是它从语法本身的角度避免了JS的若干陷阱。</p> <p>1. ==</p> <p>JS中，使用双等号比较时，它会尝试进行类型转换再比较，这就导致了下面的几个问题</p> <div class="highlight javascript"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class=lineno>1
 2
-3</pre></td><td class="code"><pre><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">''</span> <span class="o">==</span> <span class="s1">'0'</span><span class="p">);</span> <span class="c1">//false</span>
+3</pre></td><td class=code><pre><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">''</span> <span class="o">==</span> <span class="s1">'0'</span><span class="p">);</span> <span class="c1">//false</span>
 <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="mi">0</span> <span class="o">==</span><span class="s1">''</span><span class="p">);</span>    <span class="c1">//true</span>
 <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="mi">0</span> <span class="o">==</span> <span class="s1">'0'</span><span class="p">);</span>  <span class="c1">//true</span>
-</pre></td></tr></tbody></table>
-</div>
-
-<p>而在CoffeeScript中，如果使用==，将会自动编译为===，这从根本上解决了这个问题，另外还提供了一些更具语义的方法名，如 is, isnt等。
-
-2. Loop</p>
-
-<p>CoffeeScript有两种循环，针对数组的for &hellip; in和针对对象的for &hellip; of。其中针对对象的循环在JS本身是具有陷阱的。JS中对对象的循环会将对象整个原型链中的属性全部都包括进来，所以通常需要使用hasOwnProperty方法来判断属于当前对象自身的属性而排除原型链的属性。CoffeeScript并没有根本解决这个问题，但提供了own 关键字简化了解决方案</p>
-<div class="highlight coffeescript"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+</pre></td></tr></tbody></table> </div> <p>而在CoffeeScript中，如果使用==，将会自动编译为===，这从根本上解决了这个问题，另外还提供了一些更具语义的方法名，如 is, isnt等。 2. Loop</p> <p>CoffeeScript有两种循环，针对数组的for &hellip; in和针对对象的for &hellip; of。其中针对对象的循环在JS本身是具有陷阱的。JS中对对象的循环会将对象整个原型链中的属性全部都包括进来，所以通常需要使用hasOwnProperty方法来判断属于当前对象自身的属性而排除原型链的属性。CoffeeScript并没有根本解决这个问题，但提供了own 关键字简化了解决方案</p> <div class="highlight coffeescript"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class=lineno>1
 2
 3
 4
@@ -100,7 +15,7 @@
 10
 11
 12
-13</pre></td><td class="code"><pre><span class="nx">myRect</span> <span class="o">=</span>
+13</pre></td><td class=code><pre><span class="nx">myRect</span> <span class="o">=</span>
   <span class="na">x</span><span class="o">:</span> <span class="mi">100</span>
   <span class="na">y</span><span class="o">:</span> <span class="mi">200</span>
 
@@ -113,13 +28,7 @@
 <span class="c1">#x,y
 </span><span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nx">myRect</span>
   <span class="nx">console</span><span class="p">.</span><span class="na">log</span> <span class="nx">key</span>
-</pre></td></tr></tbody></table>
-</div>
-
-<p>3. Binding</p>
-
-<p>先看下面的例子</p>
-<div class="highlight coffeescript"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+</pre></td></tr></tbody></table> </div> <p>3. Binding</p> <p>先看下面的例子</p> <div class="highlight coffeescript"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class=lineno>1
 2
 3
 4
@@ -137,7 +46,7 @@
 16
 17
 18
-19</pre></td><td class="code"><pre><span class="k">class</span> <span class="nx">Foo</span>
+19</pre></td><td class=code><pre><span class="k">class</span> <span class="nx">Foo</span>
   <span class="na">constructor</span><span class="o">:</span> <span class="p">(</span><span class="vi">@</span><span class="na">value</span><span class="p">)</span> <span class="o">-&gt;</span>
 
   <span class="na">display</span><span class="o">:</span> <span class="o">-&gt;</span>
@@ -156,53 +65,8 @@
 
 <span class="nx">anotherDisplay</span><span class="p">()</span>                 <span class="c1">#undefined
 </span><span class="nx">anotherRobustDisplay</span><span class="p">()</span>           <span class="c1">#20
-</span></pre></td></tr></tbody></table>
-</div>
-
-<p>前面的两次调用都返回20，这是我们期望的值，但是当调用another*方法时，第一个返回了undefined，而第二个正确。这是怎么回事呢，不过是给了另一个别名，就导致了错误。仔细观察会发现错误的方法使用的是“-&gt;”，而正确的方法使用了“=&gt;”(Fat Arrow)。</p>
-
-<p>要找到根本的原因，得要提一下JS的Scope和Context的概念</p>
-
-<p><a href="http://book.douban.com/subject/6310125/">&lt;&lt;CoffeeScript: Accelerated JavaScript Development&gt;&gt;</a>一书中给出了这样的描述</p>
-
-<blockquote>
-<p>Scope: A variable’s scope is its home, as defined by three rules:</p>
-
-<ul>
-<li><p>Every function creates a scope, and the only way to create a scope is to define a function.</p></li>
-<li><p>A variable lives in the outermost scope in which an assignment has been made to that variable.</p></li>
-<li><p>Outside of its scope, a variable is invisible.</p></li>
-</ul>
-
-<p>Context(==This):</p>
-
-<ul>
-<li><p>When the new keyword is put in front of a function call, its context is the new object.</p></li>
-<li><p>When a function is called with call or apply, the context is the first argument given.</p></li>
-<li><p>Otherwise, if a function is called as an object property (obj.func) or obj[&lsquo;func&rsquo;]), it runs in that object’s context.</p></li>
-<li><p>If none of the above apply, then the function runs in the global context.</p></li>
-</ul>
-</blockquote>
-
-<p>简单说scope就是定义时变量的可见性，context是运行时this所指的对象环境。例子中的两个方法的实现中都输出this.value。那么当使用foo对象去o调用时，this指的就是foo对象，从而第一个执行都正确返回。当使用another*时，this对象已经发生了变化，而不再指向foo，所以anotherDisplay()返回了undefined,因为global对象并没有value值。那么anotherRobustDisplay()为什么正确呢，看看它编译的JS就清楚了</p>
-<div class="highlight javascript"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1</pre></td><td class="code"><pre><span class="k">this</span><span class="p">.</span><span class="nx">robustDisplay</span> <span class="o">=</span> <span class="nx">__bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">robustDisplay</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
-</pre></td></tr></tbody></table>
-</div>
-
-<p>在编译出的代码中有上面一个调用，它的作用就是将对robustDisplay绑定在当前对象中，而不随着调用者的变化而变化，这样它将可以知道value值。</p>
-
-<p>上面只是列举了几个小例子，用以展现CoffeeScript的语法强壮之处。当然，使用的时候还是要特别注意：</p>
-
-<ul>
-<li>与python一样，它使用缩进表示层次关系，所以编辑器的空格与tab键一定要统一</li>
-<li>像ruby一样，方法调用传递参数可以省略括号，所以方法链调用特别要注意，推荐除非特别简单，否则都使用括号</li>
-<li>参数之间的空格也要特别注意，省略括号时，是否有空格会对表意产生巨大影响</li>
-</ul>
-</div>
-  </article>
-  <div class="rows">
-    <div id="disqus_thread"></div>
-<script type="text/javascript">
+</span></pre></td></tr></tbody></table> </div> <p>前面的两次调用都返回20，这是我们期望的值，但是当调用another*方法时，第一个返回了undefined，而第二个正确。这是怎么回事呢，不过是给了另一个别名，就导致了错误。仔细观察会发现错误的方法使用的是“-&gt;”，而正确的方法使用了“=&gt;”(Fat Arrow)。</p> <p>要找到根本的原因，得要提一下JS的Scope和Context的概念</p> <p><a href="//book.douban.com/subject/6310125/">&lt;&lt;CoffeeScript: Accelerated JavaScript Development&gt;&gt;</a>一书中给出了这样的描述</p> <blockquote> <p>Scope: A variable’s scope is its home, as defined by three rules:</p> <ul> <li><p>Every function creates a scope, and the only way to create a scope is to define a function.</p></li> <li><p>A variable lives in the outermost scope in which an assignment has been made to that variable.</p></li> <li><p>Outside of its scope, a variable is invisible.</p></li> </ul> <p>Context(==This):</p> <ul> <li><p>When the new keyword is put in front of a function call, its context is the new object.</p></li> <li><p>When a function is called with call or apply, the context is the first argument given.</p></li> <li><p>Otherwise, if a function is called as an object property (obj.func) or obj[&lsquo;func&rsquo;]), it runs in that object’s context.</p></li> <li><p>If none of the above apply, then the function runs in the global context.</p></li> </ul> </blockquote> <p>简单说scope就是定义时变量的可见性，context是运行时this所指的对象环境。例子中的两个方法的实现中都输出this.value。那么当使用foo对象去o调用时，this指的就是foo对象，从而第一个执行都正确返回。当使用another*时，this对象已经发生了变化，而不再指向foo，所以anotherDisplay()返回了undefined,因为global对象并没有value值。那么anotherRobustDisplay()为什么正确呢，看看它编译的JS就清楚了</p> <div class="highlight javascript"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class=lineno>1</pre></td><td class=code><pre><span class="k">this</span><span class="p">.</span><span class="nx">robustDisplay</span> <span class="o">=</span> <span class="nx">__bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">robustDisplay</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+</pre></td></tr></tbody></table> </div> <p>在编译出的代码中有上面一个调用，它的作用就是将对robustDisplay绑定在当前对象中，而不随着调用者的变化而变化，这样它将可以知道value值。</p> <p>上面只是列举了几个小例子，用以展现CoffeeScript的语法强壮之处。当然，使用的时候还是要特别注意：</p> <ul> <li>与python一样，它使用缩进表示层次关系，所以编辑器的空格与tab键一定要统一</li> <li>像ruby一样，方法调用传递参数可以省略括号，所以方法链调用特别要注意，推荐除非特别简单，否则都使用括号</li> <li>参数之间的空格也要特别注意，省略括号时，是否有空格会对表意产生巨大影响</li> </ul> </div> </article> <div class=rows> <div id=disqus_thread></div> <script>
     /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
     var disqus_shortname = 'jiangpengsblog'; // required: replace example with your forum shortname
 
@@ -214,16 +78,7 @@
         dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
-</script>
-<noscript>Please enable JavaScript to view the
-  <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-  </div>
-  
-
-    </div>
-    
-    <script type="text/javascript">
+</script> <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> <a href="//disqus.com" class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a> </div> </div> <script>
 
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', 'UA-20150563-1']);
@@ -238,7 +93,4 @@
         s.parentNode.insertBefore(ga, s);
     })();
 
-</script>
-
-  </body>
-</html>
+</script> </body> </html>
