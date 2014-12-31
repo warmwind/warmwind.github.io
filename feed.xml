@@ -5,10 +5,216 @@
   <id>http://jiangpeng.info/</id>
   <link href="http://jiangpeng.info/"/>
   <link href="http://jiangpeng.info/feed.xml" rel="self"/>
-  <updated>2014-09-26T08:00:00+08:00</updated>
+  <updated>2014-11-24T08:00:00+08:00</updated>
   <author>
     <name>姜鹏</name>
   </author>
+  <entry>
+    <title>Elasticsearch--动态类型字段的mapping</title>
+    <link rel="alternate" href="/blogs/2014/11/24/elasticsearch.html"/>
+    <id>/blogs/2014/11/24/elasticsearch.html</id>
+    <published>2014-11-24T08:00:00+08:00</published>
+    <updated>2014-11-24T08:00:00+08:00</updated>
+    <author>
+      <name>姜鹏</name>
+    </author>
+    <content type="html">&lt;p&gt;&lt;a href="http://www.elasticsearch.org/"&gt;ElasticSearch&lt;/a&gt;是一个基于&lt;a href="http://lucene.apache.org/core/"&gt;Lucene&lt;/a&gt;构建的搜索引擎，通过RESTful的api可以进行数据的更新与搜索。目前github就是用的ES。&lt;/p&gt;
+
+&lt;p&gt;通常来讲，如果是要进行精确的查询，可以直接针对数据库进行，合理的构建index，可以在数据库层面进行快速准确查询。然后在某些场景下，当数据集合的列无法确定时，很难加index，这会导致在数据量增大时性能严重下降。例如当前项目是一个在线表单，采用Mongodb作为数据库。当对表单和数据建模时就存在这样的问题，数据存储的每一列数据是不固定的，依赖于表单中该列字段类型的定义。这样就无法对数据中的列构建index。当对这一列进行排序，过滤时，不得不遍历当前表单下的所有数据。&lt;/p&gt;
+
+&lt;p&gt;ES会对所有的字段构建自己的index和存储，这样不仅分散了数据库的访问压力，也避免了数据库缺失index的问题。这篇文章不是介绍如何从零开始使用ES，网上有很多的入门教程，从安装到运行hello world，此文以及后续的几篇文章将用来介绍我们如何更有效的在产品环境中使用ES。&lt;/p&gt;
+
+&lt;h3&gt;如何对对动态类型字段如何做mapping&lt;/h3&gt;
+
+&lt;h4&gt;动态类型的问题&lt;/h4&gt;
+
+&lt;p&gt;Mapping就是一个映射的定义，如何将系统中的数据类型映射到ES内。ES在内部对一个index下的type会根据mapping来进行存储，所以要求type中的每个字段类型必须一致。例如对一个User表，如果有个name字段，那么一条user数据中的name为string了类型的话，后续所有的user对象中的name都必须为string，否则做index时就会出错。&lt;/p&gt;
+
+&lt;p&gt;但是在我们的系统中，Form对象存储了每个字段的定义，而数据对象Entry存储字段对应的值，这样不同的entry对象的同一个字段的类型基本上都不相同。例如Form1的第一个字段是文本类型的姓名，Form2的第一个字段可能是Hash类型的地址({province: &amp;lsquo;陕西省&amp;rsquo;, city: &amp;lsquo;西安&amp;rsquo;}),那么Form1下面的Entry的field_1值类型与Form2下地field_1值类型就完全不同，这样是无法直接index到ES的。&lt;/p&gt;
+
+&lt;h4&gt;dynamic templates&lt;/h4&gt;
+
+&lt;p&gt;一个简单的mapping定义如下，它将&lt;code&gt;tweet&lt;/code&gt;的&lt;code&gt;message&lt;/code&gt;属性映射为string&lt;/p&gt;
+&lt;div class="highlight json"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4
+5
+6
+7&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="s2"&gt;"tweet"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+        &lt;/span&gt;&lt;span class="s2"&gt;"properties"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+            &lt;/span&gt;&lt;span class="s2"&gt;"message"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s2"&gt;"type"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"string"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+        &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;ES默认支持&lt;a href="http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-types.html"&gt;多种类型&lt;/a&gt;的定义，string, integer, array, object等等。
+因为我们系统中字段的类型不是无限多，所以我们采取了在字段后加入类型后缀来区分不同字段的方式来区分entry的不同字段。例如上面的Form1的entry第一个字段就是field_1_string，而Form2是field_2_hash,再加上ES的dynamic_templates就可以进行动态的定义了，例如下面的映射&lt;/p&gt;
+&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="ss"&gt;mappings: &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="ss"&gt;entry: &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="ss"&gt;date_detection: &lt;/span&gt;&lt;span class="kp"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="ss"&gt;dynamic_templates: &lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;
+            &lt;span class="p"&gt;{&lt;/span&gt;
+                &lt;span class="ss"&gt;strings: &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+                    &lt;span class="ss"&gt;match: &lt;/span&gt;&lt;span class="s1"&gt;'.*_string|_c_.*|.*_other'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                    &lt;span class="ss"&gt;match_pattern: &lt;/span&gt;&lt;span class="s1"&gt;'regex'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                    &lt;span class="ss"&gt;match_mapping_type: &lt;/span&gt;&lt;span class="s1"&gt;'string'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                    &lt;span class="ss"&gt;mapping: &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+                        &lt;span class="ss"&gt;type: &lt;/span&gt;&lt;span class="s1"&gt;'string'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                        &lt;span class="ss"&gt;analyzer: &lt;/span&gt;&lt;span class="s1"&gt;'ik'&lt;/span&gt;
+                    &lt;span class="p"&gt;}&lt;/span&gt;
+            &lt;span class="p"&gt;},&lt;/span&gt;
+            &lt;span class="p"&gt;{&lt;/span&gt;
+                &lt;span class="ss"&gt;dates: &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+                    &lt;span class="ss"&gt;match: &lt;/span&gt;&lt;span class="s1"&gt;'.*_date|.*_datetime|created_at|update_at'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                    &lt;span class="ss"&gt;match_pattern: &lt;/span&gt;&lt;span class="s1"&gt;'regex'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                    &lt;span class="ss"&gt;mapping: &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+                        &lt;span class="ss"&gt;type: &lt;/span&gt;&lt;span class="s1"&gt;'date'&lt;/span&gt;
+                    &lt;span class="p"&gt;}&lt;/span&gt;
+                &lt;span class="p"&gt;}&lt;/span&gt;
+            &lt;span class="p"&gt;},&lt;/span&gt;
+            &lt;span class="p"&gt;{&lt;/span&gt;
+                &lt;span class="ss"&gt;hashes: &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+                    &lt;span class="ss"&gt;match: &lt;/span&gt;&lt;span class="s1"&gt;'*_hash'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                    &lt;span class="ss"&gt;mapping: &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+                        &lt;span class="ss"&gt;type: &lt;/span&gt;&lt;span class="s1"&gt;'nested'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                    &lt;span class="p"&gt;}&lt;/span&gt;
+                &lt;span class="p"&gt;}&lt;/span&gt;
+            &lt;span class="p"&gt;},&lt;/span&gt;
+            &lt;span class="p"&gt;{&lt;/span&gt;
+                &lt;span class="ss"&gt;hash_propeties: &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+                    &lt;span class="ss"&gt;path_match: &lt;/span&gt;&lt;span class="s1"&gt;'*_hash.*'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                    &lt;span class="ss"&gt;mapping: &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+                        &lt;span class="ss"&gt;type: &lt;/span&gt;&lt;span class="s1"&gt;'string'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                        &lt;span class="ss"&gt;index: &lt;/span&gt;&lt;span class="s1"&gt;'not_analyzed'&lt;/span&gt;
+                    &lt;span class="p"&gt;}&lt;/span&gt;
+                &lt;span class="p"&gt;}&lt;/span&gt;
+            &lt;span class="p"&gt;}&lt;/span&gt;
+        &lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;这样定以后长生的mapping结果如下，可以看到有两个field_1的mapping，但是类型不同：&lt;/p&gt;
+&lt;div class="highlight json"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="s2"&gt;"field_1_string"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+                  &lt;/span&gt;&lt;span class="s2"&gt;"type"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"string"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+                  &lt;/span&gt;&lt;span class="s2"&gt;"analyzer"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"ik"&lt;/span&gt;&lt;span class="w"&gt;                  
+               &lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;&lt;span class="w"&gt;
+
+  &lt;/span&gt;&lt;span class="s2"&gt;"field_1_hash"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="s2"&gt;"type"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"nested"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="s2"&gt;"properties"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+       &lt;/span&gt;&lt;span class="s2"&gt;"city"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+          &lt;/span&gt;&lt;span class="s2"&gt;"type"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"string"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+          &lt;/span&gt;&lt;span class="s2"&gt;"index"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"not_analyzed"&lt;/span&gt;&lt;span class="w"&gt;
+       &lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;&lt;span class="w"&gt;
+       &lt;/span&gt;&lt;span class="s2"&gt;"district"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+          &lt;/span&gt;&lt;span class="s2"&gt;"type"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"string"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+          &lt;/span&gt;&lt;span class="s2"&gt;"index"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"not_analyzed"&lt;/span&gt;&lt;span class="w"&gt;
+       &lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;&lt;span class="w"&gt;
+       &lt;/span&gt;&lt;span class="s2"&gt;"province"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+          &lt;/span&gt;&lt;span class="s2"&gt;"type"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"string"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+          &lt;/span&gt;&lt;span class="s2"&gt;"index"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"not_analyzed"&lt;/span&gt;&lt;span class="w"&gt;
+       &lt;/span&gt;&lt;span class="p"&gt;},&lt;/span&gt;&lt;span class="w"&gt;
+       &lt;/span&gt;&lt;span class="s2"&gt;"street"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+          &lt;/span&gt;&lt;span class="s2"&gt;"type"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"string"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+          &lt;/span&gt;&lt;span class="s2"&gt;"index"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"not_analyzed"&lt;/span&gt;&lt;span class="w"&gt;
+       &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;几点需要说明的地方&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;not_analyzed: 这个设置告诉ES不要分析这个值，在搜索的时候我会精确匹配这个字段的值，另外它也会加速index&lt;/li&gt;
+&lt;li&gt;match_patten: 以指定使用&amp;lsquo;regex&amp;#39;，那么&lt;code&gt;match&lt;/code&gt;条件就会去用正则表达式去匹配field名称，如果未指定，那么match中的*则为ES的通配符&lt;/li&gt;
+&lt;li&gt;path_match: mapping中第34行，这可以指定hash中的每个key的mapping类型&lt;/li&gt;
+&lt;li&gt;date_detection：JSON本身没有date类型的，ES会尝试将可能的date类型的字符串进行转换，这并不是我们需要的，因为虽然存储的是日期，但类型可能是字符串。因此需要显示的设置为false，然后提供一个template将系统中可能的date类型做mapping即可。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;mapping需要谨慎严格的定义，特别是像我们这样对象的数据类型是动态的，因为所有的数据都将根据它来同步，一般来说后续不太可能重新修改，常常需要重新index所有的数据，特别当产品环境的数据量到达千万甚至更多时，做一次完整的index，花费可以有数小时，甚至几天。&lt;/p&gt;
+
+&lt;p&gt;下面这篇文章在开发的过程中给了不少思考：
+&lt;a href="http://joelabrahamsson.com/dynamic-mappings-and-dates-in-elasticsearch/"&gt;http://joelabrahamsson.com/dynamic-mappings-and-dates-in-elasticsearch/&lt;/a&gt;&lt;/p&gt;
+</content>
+  </entry>
   <entry>
     <title>Rails CSRF token 探秘</title>
     <link rel="alternate" href="/blogs/2014/09/26/secret-of-rails-csrf-token.html"/>
@@ -255,7 +461,7 @@ meta content="VY13wlC2rgGccbkxyvm7Z1WX4LKH+71vzIj+8Um0QO8=" name="csrf-token" /&
 
 &lt;p&gt;&lt;/p&gt;
 
-&lt;h3&gt;Unicorn&lt;/h3&gt;
+&lt;h4&gt;Unicorn&lt;/h4&gt;
 
 &lt;p&gt;Unicorn是应用服务器，以master/workers的模式工作。当master进程启动时，会将整个应用加载到内存中，之后会fork出若干个worker，master不处理任何请求，这时worker的工作。master进程管理所有的worker，它清楚每个worker处理请求的时间，当超过某个阈值时，会kill掉这个worker，并立刻fork出一个新的，以防止大量耗时的请求将worker耗尽。fork一个worker是瞬间完成的。&lt;/p&gt;
 
@@ -484,100 +690,6 @@ nginx在处理request时是有一定顺序的，例如下面的定义中，nginx
 &lt;/ul&gt;
 
 &lt;p&gt;生成URL中最长出现的错误可能就是MD5加密的错误，这时通常需要检查加密参数的顺序是否正确，或者参数是否完备或有多余了。&lt;/p&gt;
-</content>
-  </entry>
-  <entry>
-    <title>常用易混的四个Rails View Helper方法</title>
-    <link rel="alternate" href="/blogs/2013/12/01/some-rails-helper-methods-those-are-confusing.html"/>
-    <id>/blogs/2013/12/01/some-rails-helper-methods-those-are-confusing.html</id>
-    <published>2013-12-01T08:00:00+08:00</published>
-    <updated>2013-12-01T08:00:00+08:00</updated>
-    <author>
-      <name>姜鹏</name>
-    </author>
-    <content type="html">&lt;p&gt;Rails中有非常多强大的View Helper，今天其实想在这里简单总结其中4个与安全相关但又容易混淆的。&lt;/p&gt;
-
-&lt;p&gt;它们分别是: &lt;a href="http://api.rubyonrails.org/classes/ERB/Util.html#method-c-h"&gt;h&lt;/a&gt;, &lt;a href="http://api.rubyonrails.org/classes/String.html#method-i-html_safe"&gt;html_safe&lt;/a&gt;, &lt;a href="http://api.rubyonrails.org/classes/ActionView/Helpers/TextHelper.html#method-i-simple_format"&gt;simple_format&lt;/a&gt;, &lt;a href="http://api.rubyonrails.org/classes/ActionView/Helpers/SanitizeHelper.html#method-i-sanitize"&gt;sanitize&lt;/a&gt;。&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;
-
-&lt;h4&gt;h&lt;/h4&gt;
-
-&lt;p&gt;我们经常需要在页面上动态展示文字，这些完全可能来自用户的输入。所以为了防止XSS，在页面渲染时，需要对文字进行转义。在Rails2时，经常见到如下的代码&lt;/p&gt;
-&lt;div class="highlight erb"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="cp"&gt;&amp;lt;%=&lt;/span&gt; &lt;span class="n"&gt;h&lt;/span&gt; &lt;span class="n"&gt;some_text&lt;/span&gt; &lt;span class="cp"&gt;%&amp;gt;&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
-&lt;/div&gt;
-
-&lt;p&gt;其中h方法就是进行转义操作，它的同义方法为html_escape。当然在Rails3之后，h方法已经是默认调用，所以不要再显示出现了。
-从源代码可以看出，这里会对四种符号进行转义（&amp;amp;&amp;ldquo;&amp;lsquo;&amp;gt;&amp;lt;），也就是在Rails的console中可以尝试如下代码&lt;/p&gt;
-&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
-2
-3
-4&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="kp"&gt;include&lt;/span&gt; &lt;span class="no"&gt;ERB&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="no"&gt;Util&lt;/span&gt;
- &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="no"&gt;Object&lt;/span&gt;
-&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;puts&lt;/span&gt; &lt;span class="n"&gt;html_escape&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"is a &amp;gt; 0 &amp;amp; a &amp;lt; 10?"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="n"&gt;is&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;gt&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;amp&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;lt&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;?&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
-&lt;/div&gt;
-
-&lt;h4&gt;html_safe&lt;/h4&gt;
-
-&lt;p&gt;其实h方法的实现依赖此方法，其实现中首先判断是否是html_safe，如果是就直接返回，否则做转义替换。&lt;/p&gt;
-&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
-2
-3
-4
-5
-6
-7
-8&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;html_escape&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-  &lt;span class="n"&gt;s&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;to_s&lt;/span&gt;
-  &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;html_safe?&lt;/span&gt;
-    &lt;span class="n"&gt;s&lt;/span&gt;
-  &lt;span class="k"&gt;else&lt;/span&gt;
-    &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;gsub&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sr"&gt;/[&amp;amp;"'&amp;gt;&amp;lt;]/&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;HTML_ESCAPE&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;html_safe&lt;/span&gt;
-  &lt;span class="k"&gt;end&lt;/span&gt;
-&lt;span class="k"&gt;end&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
-&lt;/div&gt;
-
-&lt;p&gt;html_safe是个很容易理解错误的方法。它不是像方法名那样将调用的对象转换为安全的，而是变成了另一个类型。它是打开String后添加的一个方法，因此可以在任何String上调用，返回一个SafeBuffer对象。&lt;/p&gt;
-&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
-2
-3
-4
-5&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;String&lt;/span&gt;
-  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;html_safe&lt;/span&gt;
-    &lt;span class="no"&gt;ActiveSupport&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="no"&gt;SafeBuffer&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-  &lt;span class="k"&gt;end&lt;/span&gt;
-&lt;span class="k"&gt;end&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
-&lt;/div&gt;
-
-&lt;p&gt;SafeBuffer是个特别的类，它覆写了String的+, &amp;lt;&amp;lt; 和 []，当在erb中输出时，它不进行转义，而当给它concat一个普通的String时，它会对连接的这个字符转义。可以这样理解这个对象，它认为自己是“Safe”的缓冲池，当你给它连接字符时，则需要将其转义来保证“Safe”，而如果连接的同样是个“Safe”的对象，就不要转义了。并不是在页面上输出所有的字符时我们都需要转义，一个典型的应用场景如下（引用自&lt;a href="http://makandracards.com/makandra/2579-everything-you-know-about-html_safe-is-wrong"&gt;http://makandracards.com/makandra/2579-everything-you-know-about-html_safe-is-wrong&lt;/a&gt;）：&lt;/p&gt;
-&lt;div class="highlight ruby"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
-2
-3
-4
-5
-6
-7&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;group&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;content&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;""&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;html_safe&lt;/span&gt;
-  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s2"&gt;"&amp;lt;div class='group'&amp;gt;"&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;html_safe&lt;/span&gt;
-  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;content&lt;/span&gt;
-  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s2"&gt;"&amp;lt;/div&amp;gt;"&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;html_safe&lt;/span&gt;
-  &lt;span class="n"&gt;html&lt;/span&gt;
-&lt;span class="k"&gt;end&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
-&lt;/div&gt;
-
-&lt;h4&gt;simple_format&lt;/h4&gt;
-
-&lt;p&gt;这个方法比较好理解，顾名思义，用来格式化字符串的，主要的目的是将两个或多个换行符(\n)替换成(p)， 一个换行符替换成(&amp;lt;br /&amp;gt;)&lt;/p&gt;
-
-&lt;h4&gt;sanitize&lt;/h4&gt;
-
-&lt;p&gt;它提供了比h方法更加灵活转义策略，可以自定义不需要转义的tag。例如需要在页面显示让用自定义某些style时，就可以可以允许&amp;lt;style&amp;gt;标签，而不将其转义。&lt;/p&gt;
 </content>
   </entry>
 </feed>

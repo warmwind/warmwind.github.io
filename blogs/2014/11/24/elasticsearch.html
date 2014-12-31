@@ -1,0 +1,181 @@
+<!doctype html> <html xmlns:wb=“http://open.weibo.com/wb”> <head> <meta charset=utf-8 /> <meta http-equiv=X-UA-Compatible content='IE=edge;chrome=1'/> <meta name=keywords content="jiang peng,姜鹏,warmwind,Elasticsearch,搜索"> <meta name=viewport content="width=device-width, initial-scale=1"> <link href="/stylesheets/all-5326a621.css" rel=stylesheet /> <script src="/javascripts/application-525aeec6.js"></script> <title>Elasticsearch--动态类型字段的mapping - Jiang Peng</title> </head> <body> <nav class="navbar navbar-default navbar-fixed-top" role=navigation> <div class=container-fluid> <div class=navbar-header> <button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target="#navbar-collapse-list"> <span class=sr-only>Toggle navigation</span> <span class=icon-bar></span> <span class=icon-bar></span> <span class=icon-bar></span> </button> <a class=navbar-brand href="/"><img alt="" height=80 src="//gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg" width=80 /> <span class=title>Jiang Peng</span> </a> </div> <div class="collapse navbar-collapse" id=navbar-collapse-list> <ul class="nav navbar-nav navbar-right"> <li class=active><a href="/index.html">所有文章</a></li> <li class=apps-menu><a href="/apps.html">小程序们</a></li> <li><a href="/about.html">关于我</a></li> <li class=rss><a href="/feed.xml"><img src="/images/rss-67adc2bb.png" alt=""></a></li> </ul> </div> </div> </nav> <div class="container-fluid main-content"> <article class='article-container clearfix'> <div class=row> <h1>Elasticsearch--动态类型字段的mapping</h1> </div> <div class="row article-info"> <div class="col-xs-12 col-sm-10 col-md-10"> <span class=date>24 Nov 2014</span> <ul class=tags-container> <li class=tag><a href="/blogs/tags/elasticsearch.html">Elasticsearch</a></li> <li class=tag><a href="/blogs/tags/搜索.html">搜索</a></li> </ul> </div> <div class="jiathis_style_24x24 col-xs-12 col-sm-2"> <a class=jiathis_button_weixin></a> <a class=jiathis_button_tsina></a> <a class=jiathis_button_tqq></a> </div> <script src="//v3.jiathis.com/code/jia.js?uid=1358051221670389" charset=utf-8></script> </div> <div class=blog-content><p><a href="//www.elasticsearch.org/">ElasticSearch</a>是一个基于<a href="//lucene.apache.org/core/">Lucene</a>构建的搜索引擎，通过RESTful的api可以进行数据的更新与搜索。目前github就是用的ES。</p> <p>通常来讲，如果是要进行精确的查询，可以直接针对数据库进行，合理的构建index，可以在数据库层面进行快速准确查询。然后在某些场景下，当数据集合的列无法确定时，很难加index，这会导致在数据量增大时性能严重下降。例如当前项目是一个在线表单，采用Mongodb作为数据库。当对表单和数据建模时就存在这样的问题，数据存储的每一列数据是不固定的，依赖于表单中该列字段类型的定义。这样就无法对数据中的列构建index。当对这一列进行排序，过滤时，不得不遍历当前表单下的所有数据。</p> <p>ES会对所有的字段构建自己的index和存储，这样不仅分散了数据库的访问压力，也避免了数据库缺失index的问题。这篇文章不是介绍如何从零开始使用ES，网上有很多的入门教程，从安装到运行hello world，此文以及后续的几篇文章将用来介绍我们如何更有效的在产品环境中使用ES。</p> <h3>如何对对动态类型字段如何做mapping</h3> <h4>动态类型的问题</h4> <p>Mapping就是一个映射的定义，如何将系统中的数据类型映射到ES内。ES在内部对一个index下的type会根据mapping来进行存储，所以要求type中的每个字段类型必须一致。例如对一个User表，如果有个name字段，那么一条user数据中的name为string了类型的话，后续所有的user对象中的name都必须为string，否则做index时就会出错。</p> <p>但是在我们的系统中，Form对象存储了每个字段的定义，而数据对象Entry存储字段对应的值，这样不同的entry对象的同一个字段的类型基本上都不相同。例如Form1的第一个字段是文本类型的姓名，Form2的第一个字段可能是Hash类型的地址({province: &lsquo;陕西省&rsquo;, city: &lsquo;西安&rsquo;}),那么Form1下面的Entry的field_1值类型与Form2下地field_1值类型就完全不同，这样是无法直接index到ES的。</p> <h4>dynamic templates</h4> <p>一个简单的mapping定义如下，它将<code>tweet</code>的<code>message</code>属性映射为string</p> <div class="highlight json"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class=lineno>1
+2
+3
+4
+5
+6
+7</pre></td><td class=code><pre><span class="p">{</span><span class="w">
+    </span><span class="s2">"tweet"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"properties"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"message"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="s2">"type"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w"> </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></pre></td></tr></tbody></table> </div> <p>ES默认支持<a href="//www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-types.html">多种类型</a>的定义，string, integer, array, object等等。 因为我们系统中字段的类型不是无限多，所以我们采取了在字段后加入类型后缀来区分不同字段的方式来区分entry的不同字段。例如上面的Form1的entry第一个字段就是field_1_string，而Form2是field_2_hash,再加上ES的dynamic_templates就可以进行动态的定义了，例如下面的映射</p> <div class="highlight ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class=lineno>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43</pre></td><td class=code><pre><span class="ss">mappings: </span><span class="p">{</span>
+    <span class="ss">entry: </span><span class="p">{</span>
+        <span class="ss">date_detection: </span><span class="kp">false</span><span class="p">,</span>
+        <span class="ss">dynamic_templates: </span><span class="p">[</span>
+            <span class="p">{</span>
+                <span class="ss">strings: </span><span class="p">{</span>
+                    <span class="ss">match: </span><span class="s1">'.*_string|_c_.*|.*_other'</span><span class="p">,</span>
+                    <span class="ss">match_pattern: </span><span class="s1">'regex'</span><span class="p">,</span>
+                    <span class="ss">match_mapping_type: </span><span class="s1">'string'</span><span class="p">,</span>
+                    <span class="ss">mapping: </span><span class="p">{</span>
+                        <span class="ss">type: </span><span class="s1">'string'</span><span class="p">,</span>
+                        <span class="ss">analyzer: </span><span class="s1">'ik'</span>
+                    <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="ss">dates: </span><span class="p">{</span>
+                    <span class="ss">match: </span><span class="s1">'.*_date|.*_datetime|created_at|update_at'</span><span class="p">,</span>
+                    <span class="ss">match_pattern: </span><span class="s1">'regex'</span><span class="p">,</span>
+                    <span class="ss">mapping: </span><span class="p">{</span>
+                        <span class="ss">type: </span><span class="s1">'date'</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="ss">hashes: </span><span class="p">{</span>
+                    <span class="ss">match: </span><span class="s1">'*_hash'</span><span class="p">,</span>
+                    <span class="ss">mapping: </span><span class="p">{</span>
+                        <span class="ss">type: </span><span class="s1">'nested'</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="ss">hash_propeties: </span><span class="p">{</span>
+                    <span class="ss">path_match: </span><span class="s1">'*_hash.*'</span><span class="p">,</span>
+                    <span class="ss">mapping: </span><span class="p">{</span>
+                        <span class="ss">type: </span><span class="s1">'string'</span><span class="p">,</span>
+                        <span class="ss">index: </span><span class="s1">'not_analyzed'</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table> </div> <p>这样定以后长生的mapping结果如下，可以看到有两个field_1的mapping，但是类型不同：</p> <div class="highlight json"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class=lineno>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28</pre></td><td class=code><pre><span class="p">{</span><span class="w">
+  </span><span class="s2">"field_1_string"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                  </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
+                  </span><span class="s2">"analyzer"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ik"</span><span class="w">                  
+               </span><span class="p">},</span><span class="w">
+
+  </span><span class="s2">"field_1_hash"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nested"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+       </span><span class="s2">"city"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"index"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not_analyzed"</span><span class="w">
+       </span><span class="p">},</span><span class="w">
+       </span><span class="s2">"district"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"index"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not_analyzed"</span><span class="w">
+       </span><span class="p">},</span><span class="w">
+       </span><span class="s2">"province"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"index"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not_analyzed"</span><span class="w">
+       </span><span class="p">},</span><span class="w">
+       </span><span class="s2">"street"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"index"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not_analyzed"</span><span class="w">
+       </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></pre></td></tr></tbody></table> </div> <p>几点需要说明的地方</p> <ul> <li>not_analyzed: 这个设置告诉ES不要分析这个值，在搜索的时候我会精确匹配这个字段的值，另外它也会加速index</li> <li>match_patten: 以指定使用&lsquo;regex&#39;，那么<code>match</code>条件就会去用正则表达式去匹配field名称，如果未指定，那么match中的*则为ES的通配符</li> <li>path_match: mapping中第34行，这可以指定hash中的每个key的mapping类型</li> <li>date_detection：JSON本身没有date类型的，ES会尝试将可能的date类型的字符串进行转换，这并不是我们需要的，因为虽然存储的是日期，但类型可能是字符串。因此需要显示的设置为false，然后提供一个template将系统中可能的date类型做mapping即可。</li> </ul> <p>mapping需要谨慎严格的定义，特别是像我们这样对象的数据类型是动态的，因为所有的数据都将根据它来同步，一般来说后续不太可能重新修改，常常需要重新index所有的数据，特别当产品环境的数据量到达千万甚至更多时，做一次完整的index，花费可以有数小时，甚至几天。</p> <p>下面这篇文章在开发的过程中给了不少思考： <a href="//joelabrahamsson.com/dynamic-mappings-and-dates-in-elasticsearch/">http://joelabrahamsson.com/dynamic-mappings-and-dates-in-elasticsearch/</a></p> </div> </article> <div class=rows> <div id=disqus_thread></div> <script>
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'jiangpengsblog'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script> <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> <a href="//disqus.com" class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a> </div> </div> <script>
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-20150563-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function () {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+
+</script> </body> </html>
