@@ -5,14 +5,78 @@
   <id>http://jiangpeng.info/</id>
   <link href="http://jiangpeng.info/"/>
   <link href="http://jiangpeng.info/feed.xml" rel="self"/>
-  <updated>2014-11-24T08:00:00+08:00</updated>
+  <updated>2014-11-25T08:00:00+08:00</updated>
   <author>
     <name>姜鹏</name>
   </author>
   <entry>
+    <title>Elasticsearch--更新策略</title>
+    <link rel="alternate" href="/blogs/2014/11/25/elasticsearch_update_strategy.html"/>
+    <id>/blogs/2014/11/25/elasticsearch_update_strategy.html</id>
+    <published>2014-11-25T08:00:00+08:00</published>
+    <updated>2014-11-25T08:00:00+08:00</updated>
+    <author>
+      <name>姜鹏</name>
+    </author>
+    <content type="html">&lt;p&gt;&lt;a href="/blogs/2014/11/24/elasticsearch_mapping.html"&gt;前一篇&lt;/a&gt;文章介绍了如何在Elasticsearch上做动态映射，这篇文章会介绍下如何更有效的做ES的数据更新。&lt;/p&gt;
+
+&lt;h3&gt;更新频率&lt;/h3&gt;
+
+&lt;p&gt;如果把ES看做另一个数据库，那么它总是会比系统原有的数据库滞后，因为数据会先存入原有数据库，再同步到ES。那么滞后的时间就是一个敏感的参数。根据业务的不同，差别很大。我了解到有的系统可以接受10分钟以上的延迟，不过我们作为一个数据平台，用户提交或修改数据后，是希望能立刻查询到修改的结果的，所以理论上是越短越好，但频繁的更新会给ES服务器带来很大的&lt;a href="https://www.found.no/foundation/keeping-elasticsearch-in-sync/#the-problems-of-too-frequent-updates-and-non-batch-updates"&gt;开销&lt;/a&gt;。&lt;/p&gt;
+
+&lt;h3&gt;异步更新&lt;/h3&gt;
+
+&lt;p&gt;更新可以采用同步和异步两种方式。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;同步：
+使用elasticsearch-rails这个gem中的&lt;a href="https://github.com/elasticsearch/elasticsearch-rails/tree/master/elasticsearch-model#automatic-callbacks"&gt;Automatic-Callback&lt;/a&gt;
+，在inlcude&lt;code&gt;Elasticsearch::Model::Callbacks&lt;/code&gt;后，实际上就是在每一次数据增删改后使用callback来往ES发送请求。&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;异步：
+采用&lt;a href="https://github.com/elasticsearch/elasticsearch-rails/tree/master/elasticsearch-model#asynchronous-callbacks"&gt;Asynchronous-Callback&lt;/a&gt;的方式，将每一次的更新放入队列。&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;同步的缺点是显而易见的，因为需要进行一次http请求与外部的服务器相连，影响原有的操作效率。特别是与ES的链接有问题时，会直接Timeout异常。因此在产品环境中一定要使用异步更新，它不仅规避了效率和稳定性问题，也让我们有了更大的灵活性在更新之前做更多的数据处理工作，例如后面要提到的数据聚合。&lt;/p&gt;
+
+&lt;h3&gt;聚合，使用Bulk API&lt;/h3&gt;
+
+&lt;p&gt;针对每一条数据的增删改就做一个更新，虽然是异步，但是在ES这边，是低效的，而且像我们这样每秒都有很多数据变化的系统是不现实的（实际上第一次上线时就采用这种方式，导致ES的CPU和内存急剧增加）。幸运的是，ES提供了Bulk API，并且也推荐使用它来进行&lt;a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/bulk.html#bulk"&gt;批量的更新&lt;/a&gt;。一个简单的批量的请求体如下，它可以同时包含增删改操作，并且可以是多条。&lt;/p&gt;
+&lt;div class="highlight json"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4
+5
+6
+7&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"delete"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"_index"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"website"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"_type"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"blog"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"_id"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"123"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;}}&lt;/span&gt;&lt;span class="w"&gt; 
+&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"create"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"_index"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"website"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"_type"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"blog"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"_id"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"123"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;}}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"title"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="s2"&gt;"My first blog post"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"index"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"_index"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"website"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"_type"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"blog"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;}}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"title"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="s2"&gt;"My second blog post"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"update"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"_index"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"website"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"_type"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"blog"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"_id"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"123"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"_retry_on_conflict"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"doc"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s2"&gt;"title"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"My updated blog post"&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt; 
+&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+
+&lt;p&gt;我们的更新策略是：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;在一次更新时间内，将对数据的三种操作分别加入三个sidekiq队列，index, update和delete。&lt;/li&gt;
+&lt;li&gt;如果一次更新内，三个队列的优先级不同，例如如果一个数据同时在update队列和delete队列里，那么就从delete队列删除，这表示用户先更新了数据，然后又删除了，就只需要对ES做一个删除操作&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;错误处理&lt;/h3&gt;
+
+&lt;p&gt;当sidekiq开始处理某些数据后，为了防止其它的sidekiq worker也去处理，需要将redis中对应数据暂时删除。但是如果因为某种原因出错，则还需要将这条数据重新加入队列中，以此来实现重试操作。
+需要注意的是，批量操作时，ES会将所有的数据更新状态都返回，系统需要根据是否出现error来从返回的结果中提取出错的数据，仅仅将这些数据重新加入队列，而不要简单的将所有数据都重新加回，增加负载。&lt;/p&gt;
+
+&lt;p&gt;下面的文章介绍了更多信息
+&lt;a href="https://www.found.no/foundation/keeping-elasticsearch-in-sync/"&gt;https://www.found.no/foundation/keeping-elasticsearch-in-sync&lt;/a&gt;&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
     <title>Elasticsearch--动态类型字段的mapping</title>
-    <link rel="alternate" href="/blogs/2014/11/24/elasticsearch.html"/>
-    <id>/blogs/2014/11/24/elasticsearch.html</id>
+    <link rel="alternate" href="/blogs/2014/11/24/elasticsearch_mapping.html"/>
+    <id>/blogs/2014/11/24/elasticsearch_mapping.html</id>
     <published>2014-11-24T08:00:00+08:00</published>
     <updated>2014-11-24T08:00:00+08:00</updated>
     <author>
@@ -617,79 +681,6 @@ nginx在处理request时是有一定顺序的，例如下面的定义中，nginx
 &lt;p&gt;在支付宝手机网页支付方面，由于当时没有找到现成的gem，所以就是自己实现了。&lt;/p&gt;
 
 &lt;p&gt;前两天在上看到Ruby China上的&lt;a href="http://ruby-china.org/topics/12992" target="_blank"&gt;这篇文章&lt;/a&gt;介绍了一个gem，专门用于支付宝，可以通过查看它的源代码来了解实现细节。不够这个gem似乎也还不包括手机移动支付的部分。&lt;/p&gt;
-</content>
-  </entry>
-  <entry>
-    <title>支付宝集成——生成请求URL</title>
-    <link rel="alternate" href="/blogs/2014/01/03/alipay-generate-request-url.html"/>
-    <id>/blogs/2014/01/03/alipay-generate-request-url.html</id>
-    <published>2014-01-03T08:00:00+08:00</published>
-    <updated>2014-01-03T08:00:00+08:00</updated>
-    <author>
-      <name>姜鹏</name>
-    </author>
-    <content type="html">&lt;p&gt;去年的这个时候，开始开发基于支付宝的收费模块，现在已经运行了快到一年。这期间从担保交易到即时到帐，再到支持手机支付，经历了用户真正的验证后，今天来总结一下支付宝集成中得注意事项。当然要先申请支付宝的商家服务，拿到PID和Key，并至少签约成即时到帐、双工或者担保交易的一种。&lt;/p&gt;
-
-&lt;p&gt;以开发的角度，从发起到结束可以分为以下两个主要步骤：生成请求URL（网页版和手机版的生成方式是不同的），支付宝回调校验和应答。这里先来说一下生成请求URL的注意事项。&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;
-
-&lt;h4&gt;电脑网页版生成请求URL&lt;/h4&gt;
-
-&lt;p&gt;这会是一个普通的GET请求，支付宝的网关是，https://mapi.alipay.com/gateway.do，需要在网关后增添上需要的参数。如果请求成功，可以看到支付宝的登录页面。其中有几个需要注意的参数：&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;同步转向地址return_url：用户支付成功以后的同步转向页面&lt;/li&gt;
-&lt;li&gt;异步通知地址notify_url：当用户的交易状态发生任何变化（比如买家已付款，卖家已发货等）的时候，支付宝都会以POST方式来请求这个地址，并传递相应的参数。&lt;/li&gt;
-&lt;li&gt;sign和sign_type：支付宝要求对请求的参数需要做MD5加密，除了这两个参数以外，其它的参数都需要跟据字母顺序排序后加密。&lt;/li&gt;
-&lt;li&gt;商户订单号out_trade_no：这里可以定义为系统中的某个唯一的值，它与支付宝的订单号一一对应。&lt;/li&gt;
-&lt;li&gt;logistics_fee, logistics_type, logistics_payment：如果是担保交易，则必须指定这三个关于快递的参数。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4&gt;手机网页支付生成请求URL&lt;/h4&gt;
-
-&lt;p&gt;手机网页支付与电脑网页支付有很大的不同：&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;手机端只支持即时到帐交易&lt;/li&gt;
-&lt;li&gt;手机端数据交互格式不是普通的URL的参数，而是xml格式，在请求中的req_data参数需要传入的格式应该如下：&lt;/li&gt;
-&lt;/ul&gt;
-&lt;div class="highlight xml"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
-2
-3
-4
-5
-6
-7
-8&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;  &lt;span class="nt"&gt;&amp;lt;direct_trade_create_req&amp;gt;&lt;/span&gt;
-    &lt;span class="nt"&gt;&amp;lt;subject&amp;gt;&lt;/span&gt;#{options[:subject]}&lt;span class="nt"&gt;&amp;lt;/subject&amp;gt;&lt;/span&gt;
-    &lt;span class="nt"&gt;&amp;lt;out_trade_no&amp;gt;&lt;/span&gt;#{options[:out_trade_no]}&lt;span class="nt"&gt;&amp;lt;/out_trade_no&amp;gt;&lt;/span&gt;
-    &lt;span class="nt"&gt;&amp;lt;total_fee&amp;gt;&lt;/span&gt;#{options[:price]}&lt;span class="nt"&gt;&amp;lt;/total_fee&amp;gt;&lt;/span&gt;
-    &lt;span class="nt"&gt;&amp;lt;seller_account_name&amp;gt;&lt;/span&gt;#{options[:seller_email]}&lt;span class="nt"&gt;&amp;lt;/seller_account_name&amp;gt;&lt;/span&gt;
-    &lt;span class="nt"&gt;&amp;lt;call_back_url&amp;gt;&lt;/span&gt;#{options[:call_back_url]}&lt;span class="nt"&gt;&amp;lt;/call_back_url&amp;gt;&lt;/span&gt;
-    &lt;span class="nt"&gt;&amp;lt;notify_url&amp;gt;&lt;/span&gt;#{options[:notify_url]}&lt;span class="nt"&gt;&amp;lt;/notify_url&amp;gt;&lt;/span&gt;
-  &lt;span class="nt"&gt;&amp;lt;/direct_trade_create_req&amp;gt;&lt;/span&gt;        
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
-&lt;/div&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;手机端请求URL时分两步，首先获取token，再以token请求支付页面&lt;/p&gt;
-
-&lt;p&gt;第一步，请求移动网关http://wappaygw.alipay.com/service/rest.htm，参数包含一些基本参数和上面的req_data外，要指定service为alipay.wap.trade.create.direct。当然也是需要MD5加密的（支付宝也支持RSA加密，不过由于我们的系统允许用户输入自己的PID和KEY来使用，所以我们选择了简单的MD5加密）。&lt;/p&gt;
-
-&lt;p&gt;第二步，解析返回的参数，取出token，然后构造执行的请求req_data为&lt;/p&gt;
-&lt;div class="highlight xml"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
-2
-3&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="nt"&gt;&amp;lt;auth_and_execute_req&amp;gt;&lt;/span&gt;
-&lt;span class="nt"&gt;&amp;lt;request_token&amp;gt;&lt;/span&gt;#{token}&lt;span class="nt"&gt;&amp;lt;/request_token&amp;gt;&lt;/span&gt;
-&lt;span class="nt"&gt;&amp;lt;/auth_and_execute_req&amp;gt;&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
-&lt;/div&gt;
-
-&lt;p&gt;再一次请求移动网关，并将service设为alipay.wap.auth.authAndExecute。幸运的话，应该就能在手机上看到手机的支付宝登陆页面了。&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;生成URL中最长出现的错误可能就是MD5加密的错误，这时通常需要检查加密参数的顺序是否正确，或者参数是否完备或有多余了。&lt;/p&gt;
 </content>
   </entry>
 </feed>
