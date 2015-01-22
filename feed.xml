@@ -5,20 +5,147 @@
   <id>http://jiangpeng.info/</id>
   <link href="http://jiangpeng.info/"/>
   <link href="http://jiangpeng.info/feed.xml" rel="self"/>
-  <updated>2014-11-25T08:00:00+08:00</updated>
+  <updated>2015-01-22T08:00:00+08:00</updated>
   <author>
     <name>姜鹏</name>
   </author>
   <entry>
+    <title>为什么Turbolinks发送了两次请求</title>
+    <link rel="alternate" href="/blogs/2015/01/22/turbolinks-request-twice.html"/>
+    <id>/blogs/2015/01/22/turbolinks-request-twice.html</id>
+    <published>2015-01-22T08:00:00+08:00</published>
+    <updated>2015-01-22T08:00:00+08:00</updated>
+    <author>
+      <name>姜鹏</name>
+    </author>
+    <content type="html">&lt;p&gt;前面有一篇文章介绍过使用&lt;a href="/blogs/2013/02/28/turbolinks-make-form-resubmissioin.html"&gt;Turbolinks&lt;/a&gt;遇到的一个问题，最近又发现了另一个问题。&lt;/p&gt;
+
+&lt;p&gt;开发时，tail后台的log会发现某些情况下，同一个请求会触发两次，不过因为都是get请求，而且同一个地址请求后的响应式相同的，所以前台不能完全察觉到。不够下面的场景跟预期就不一致了。&lt;/p&gt;
+
+&lt;p&gt;假设需要一个功能可以在后台管理页面禁止用户账户，被禁止的账户在随后的所有访问当会重定向到禁止页面。&lt;/p&gt;
+
+&lt;p&gt;从实现上来讲，当判断出用户的禁用状态后，就会清除他的登录session，然后重定向到禁止页面。但是现象是用户会直接跳转到登录页面，当重新登陆后，则看到禁止页。查看后台就发现同一个地址请求了两次，第一次清除了session，第二次再访问因为没有session就转向到登陆页面了。&lt;/p&gt;
+
+&lt;p&gt;当然这种问题看看源码就清楚了，从Turbolinks的代码可以看出，在三种情况下，Turbolinks会尝试第二次请求同一个url。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;response的状态吗在400到600之间&lt;/li&gt;
+&lt;li&gt;response header的content-type不匹配 /^(?:text\/html|application\/xhtml+xml|application\/xml)(?:;|$)/&lt;/li&gt;
+&lt;li&gt;新页面的assets有变化,并且&lt;code&gt;data-turbolinks-track&lt;/code&gt;为true时&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight coffeescript"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;&lt;span class="nx"&gt;processResponse&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;
+  &lt;span class="nx"&gt;clientOrServerError&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class="mi"&gt;400&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="nx"&gt;xhr&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;status&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;600&lt;/span&gt;
+
+  &lt;span class="nx"&gt;validContent&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;contentType&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;xhr&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getResponseHeader&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;'Content-Type'&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;&lt;span class="o"&gt;?&lt;/span&gt; &lt;span class="o"&gt;and&lt;/span&gt;
+      &lt;span class="nx"&gt;contentType&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;match&lt;/span&gt; &lt;span class="sr"&gt;/^(?:text\/html|application\/xhtml\+xml|application\/xml)(?:;|$)/&lt;/span&gt;
+
+  &lt;span class="nx"&gt;extractTrackAssets&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;doc&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="nx"&gt;node&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="nx"&gt;doc&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;querySelector&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;'head'&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="na"&gt;childNodes&lt;/span&gt; &lt;span class="k"&gt;when&lt;/span&gt; &lt;span class="nx"&gt;node&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getAttribute&lt;/span&gt;&lt;span class="o"&gt;?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;'data-turbolinks-track'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;?&lt;/span&gt;
+      &lt;span class="nx"&gt;node&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getAttribute&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;'src'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;or&lt;/span&gt; &lt;span class="nx"&gt;node&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getAttribute&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;'href'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+  &lt;span class="nx"&gt;assetsChanged&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;doc&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class="nx"&gt;loadedAssets&lt;/span&gt; &lt;span class="o"&gt;||=&lt;/span&gt; &lt;span class="nx"&gt;extractTrackAssets&lt;/span&gt; &lt;span class="nb"&gt;document&lt;/span&gt;
+    &lt;span class="nx"&gt;fetchedAssets&lt;/span&gt;  &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;extractTrackAssets&lt;/span&gt; &lt;span class="nx"&gt;doc&lt;/span&gt;
+    &lt;span class="nx"&gt;fetchedAssets&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt; &lt;span class="o"&gt;isnt&lt;/span&gt; &lt;span class="nx"&gt;loadedAssets&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt; &lt;span class="o"&gt;or&lt;/span&gt; &lt;span class="nx"&gt;intersection&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;fetchedAssets&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;loadedAssets&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt; &lt;span class="o"&gt;isnt&lt;/span&gt; &lt;span class="nx"&gt;loadedAssets&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt;
+
+  &lt;span class="nx"&gt;intersection&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;b&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;b&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;b&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;a&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nx"&gt;a&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="nx"&gt;b&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt;
+    &lt;span class="nx"&gt;value&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="nx"&gt;value&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="nx"&gt;a&lt;/span&gt; &lt;span class="k"&gt;when&lt;/span&gt; &lt;span class="nx"&gt;value&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="nx"&gt;b&lt;/span&gt;
+
+  &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;not&lt;/span&gt; &lt;span class="nx"&gt;clientOrServerError&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;and&lt;/span&gt; &lt;span class="nx"&gt;validContent&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="nx"&gt;doc&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;createDocument&lt;/span&gt; &lt;span class="nx"&gt;xhr&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;responseText&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nx"&gt;doc&lt;/span&gt; &lt;span class="o"&gt;and&lt;/span&gt; &lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="nx"&gt;assetsChanged&lt;/span&gt; &lt;span class="nx"&gt;doc&lt;/span&gt;
+      &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;doc&lt;/span&gt;
+
+
+&lt;span class="nx"&gt;fetchReplacement&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;url&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;onLoadFunction&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;showProgressBar&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;true&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;
+  &lt;span class="nx"&gt;triggerEvent&lt;/span&gt; &lt;span class="nx"&gt;EVENTS&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;FETCH&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="na"&gt;url&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;url&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;absolute&lt;/span&gt;
+
+  &lt;span class="nx"&gt;xhr&lt;/span&gt;&lt;span class="o"&gt;?&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;abort&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+  &lt;span class="nx"&gt;xhr&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nx"&gt;XMLHttpRequest&lt;/span&gt;
+  &lt;span class="nx"&gt;xhr&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;open&lt;/span&gt; &lt;span class="s"&gt;'GET'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;url&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;withoutHashForIE10compatibility&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="no"&gt;true&lt;/span&gt;
+  &lt;span class="nx"&gt;xhr&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;setRequestHeader&lt;/span&gt; &lt;span class="s"&gt;'Accept'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;'text/html, application/xhtml+xml, application/xml'&lt;/span&gt;
+  &lt;span class="nx"&gt;xhr&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;setRequestHeader&lt;/span&gt; &lt;span class="s"&gt;'X-XHR-Referer'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;referer&lt;/span&gt;
+
+  &lt;span class="nx"&gt;xhr&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;onload&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class="nx"&gt;triggerEvent&lt;/span&gt; &lt;span class="nx"&gt;EVENTS&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;RECEIVE&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="na"&gt;url&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="nx"&gt;url&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;absolute&lt;/span&gt;
+
+    &lt;span class="c1"&gt;#在这里会判断response是否会返回doc body，如果为空，则直接在浏览器再请求一次该url
+&lt;/span&gt;    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nx"&gt;doc&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;processResponse&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+      &lt;span class="nx"&gt;reflectNewUrl&lt;/span&gt; &lt;span class="nx"&gt;url&lt;/span&gt;
+      &lt;span class="nx"&gt;reflectRedirectedUrl&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+      &lt;span class="nx"&gt;changePage&lt;/span&gt; &lt;span class="nx"&gt;extractTitleAndBody&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;doc&lt;/span&gt;&lt;span class="p"&gt;)...&lt;/span&gt;
+      &lt;span class="nx"&gt;manuallyTriggerHashChangeForFirefox&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+      &lt;span class="nx"&gt;onLoadFunction&lt;/span&gt;&lt;span class="o"&gt;?&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+      &lt;span class="nx"&gt;triggerEvent&lt;/span&gt; &lt;span class="nx"&gt;EVENTS&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;LOAD&lt;/span&gt;
+    &lt;span class="k"&gt;else&lt;/span&gt;
+      &lt;span class="nb"&gt;document&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;location&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;href&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;crossOriginRedirect&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;or&lt;/span&gt; &lt;span class="nx"&gt;url&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="na"&gt;absolute&lt;/span&gt;
+
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;/div&gt;
+</content>
+  </entry>
+  <entry>
     <title>Elasticsearch--更新策略</title>
-    <link rel="alternate" href="/blogs/2014/11/25/elasticsearch_update_strategy.html"/>
-    <id>/blogs/2014/11/25/elasticsearch_update_strategy.html</id>
+    <link rel="alternate" href="/blogs/2014/11/25/elasticsearch-update-strategy.html"/>
+    <id>/blogs/2014/11/25/elasticsearch-update-strategy.html</id>
     <published>2014-11-25T08:00:00+08:00</published>
     <updated>2014-11-25T08:00:00+08:00</updated>
     <author>
       <name>姜鹏</name>
     </author>
-    <content type="html">&lt;p&gt;&lt;a href="/blogs/2014/11/24/elasticsearch_mapping.html"&gt;前一篇&lt;/a&gt;文章介绍了如何在Elasticsearch上做动态映射，这篇文章会介绍下如何更有效的做ES的数据更新。&lt;/p&gt;
+    <content type="html">&lt;p&gt;&lt;a href="/blogs/2014/11/24/elasticsearch-mapping.html"&gt;前一篇&lt;/a&gt;文章介绍了如何在Elasticsearch上做动态映射，这篇文章会介绍下如何更有效的做ES的数据更新。&lt;/p&gt;
 
 &lt;h3&gt;更新频率&lt;/h3&gt;
 
@@ -75,8 +202,8 @@
   </entry>
   <entry>
     <title>Elasticsearch--动态类型字段的mapping</title>
-    <link rel="alternate" href="/blogs/2014/11/24/elasticsearch_mapping.html"/>
-    <id>/blogs/2014/11/24/elasticsearch_mapping.html</id>
+    <link rel="alternate" href="/blogs/2014/11/24/elasticsearch-mapping.html"/>
+    <id>/blogs/2014/11/24/elasticsearch-mapping.html</id>
     <published>2014-11-24T08:00:00+08:00</published>
     <updated>2014-11-24T08:00:00+08:00</updated>
     <author>
@@ -637,50 +764,6 @@ nginx在处理request时是有一定顺序的，例如下面的定义中，nginx
 &lt;li&gt;&lt;a href="http://nginx.org/en/docs/http/ngx_http_upstream_module.html"&gt;http://nginx.org/en/docs/http/ngx&lt;em&gt;http&lt;/em&gt;upstream_module.html&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="http://nginx.org/en/docs/http/request_processing.html"&gt;http://nginx.org/en/docs/http/request_processing.html&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-</content>
-  </entry>
-  <entry>
-    <title>支付宝集成——校验与应答</title>
-    <link rel="alternate" href="/blogs/2014/01/04/alipay-verify-request.html"/>
-    <id>/blogs/2014/01/04/alipay-verify-request.html</id>
-    <published>2014-01-04T08:00:00+08:00</published>
-    <updated>2014-01-04T08:00:00+08:00</updated>
-    <author>
-      <name>姜鹏</name>
-    </author>
-    <content type="html">&lt;p&gt;前一篇文章介绍了如何生成支付宝的请求URL，当顺利打开支付宝的登录页面后，这里的操作就与应用本身无关了，完全在支付宝内部完成。当用户的交易状态改变，比如付款成功时，支付宝会通过POST发送请求URL中设定的notify_url。由于通常都需要在回调中进行业务逻辑处理，因为，为了防止恶意或伪造请求，需要对该请求进行严格的校验。&lt;/p&gt;
-
-&lt;h4&gt;MD5校验&lt;/h4&gt;
-
-&lt;p&gt;按照请求URL中的规则，对参数再进行一次MD5运算，与传递过来的sign值进行比较，这是为了保证URL的完整性，参数的值没有在传递过程中被篡改，因为需要的KEY值只有支付宝和系统内部可知。&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;
-
-&lt;h4&gt;支付宝校验&lt;/h4&gt;
-
-&lt;p&gt;对网页版的支付异步回调，支付宝提供了专门的service来校验合法性。在收到POST请求的&lt;em&gt;一分钟内&lt;/em&gt;，可以请求下面的地址，如果返回的body是个字符串true，则这是个有效的通知。
-手机版是没有这个校验service的。&lt;/p&gt;
-&lt;div class="highlight html"&gt;&lt;table style="border-spacing: 0"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="gutter gl" style="text-align: right"&gt;&lt;pre class="lineno"&gt;1&lt;/pre&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;pre&gt;https://mapi.alipay.com/gateway.do?service=notify_verify?partner=xxxxx&lt;span class="err"&gt;&amp;amp;&lt;/span&gt;notify_id=xxxxx
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
-&lt;/div&gt;
-
-&lt;p&gt;支付宝的异步通知规则为,所以当异步回调成功处理之后，一定要返回success文字，并且要在业务逻辑上注意检测是否已经处理过该请求，防止重复处理。&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;程序执行完后必须打印输出“success”(不包含引号、前后无空格和其他多 余字符)。如果商户反馈给支付宝的字符不是 success 这 7 个字符,支付宝 服务器会不断重发通知,直到超过 24 小时 22 分钟。
-一般情况下,25 小时以内完成 8 次通知(通知的间隔频率一般是: 2m,10m,10m,1h,2h,6h,15h)&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;此篇与上篇文章介绍了与支付宝交互的内部流程，实际在开发中有很多库可用，它们主要提供了生成URL，校验，以及通知内容的封装等。基于Ruby On Rails的技术栈，我们采用了下面两个gem：&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://github.com/Shopify/active_merchant" target="_blank"&gt;activemerchant&lt;/a&gt;：这个集成了全球流行的支付网关&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://github.com/flyerhzm/activemerchant_patch_for_china" target="_blank"&gt;activemerchant_patch_for_china&lt;/a&gt;：这个gem集成了 alipay (支付宝), 99bill (快钱), tenpay (财付通), 19pay(捷迅支付) and yeepay(易宝)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;在支付宝手机网页支付方面，由于当时没有找到现成的gem，所以就是自己实现了。&lt;/p&gt;
-
-&lt;p&gt;前两天在上看到Ruby China上的&lt;a href="http://ruby-china.org/topics/12992" target="_blank"&gt;这篇文章&lt;/a&gt;介绍了一个gem，专门用于支付宝，可以通过查看它的源代码来了解实现细节。不够这个gem似乎也还不包括手机移动支付的部分。&lt;/p&gt;
 </content>
   </entry>
 </feed>
