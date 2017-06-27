@@ -1,17 +1,18 @@
-<!doctype html> <html xmlns:wb=“http://open.weibo.com/wb”> <head> <meta charset=utf-8 /> <meta http-equiv=X-UA-Compatible content='IE=edge;chrome=1'/> <meta name=keywords content="jiang peng,姜鹏,warmwind,Eigenclass,Ruby"> <meta name=viewport content="width=device-width, initial-scale=1"> <link href="/stylesheets/all.css" rel=stylesheet /> <script src="/javascripts/application.js"></script> <title>Inside Ruby: Eigenclass - Jiang Peng</title> </head> <body> <nav class="navbar navbar-default navbar-fixed-top" role=navigation> <div class=container-fluid> <div class=navbar-header> <button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target="#navbar-collapse-list"> <span class=sr-only>Toggle navigation</span> <span class=icon-bar></span> <span class=icon-bar></span> <span class=icon-bar></span> </button> <a class=navbar-brand href="/"><img alt="" height=80 src="//gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg" width=80 /> <span class=title>Jiang Peng</span> </a> </div> <div class="collapse navbar-collapse" id=navbar-collapse-list> <ul class="nav navbar-nav navbar-right"> <li class=active><a href="/index.html">所有文章</a></li> <li class=apps-menu><a href="/apps.html">小程序们</a></li> <li><a href="/about.html">关于我</a></li> <li class=rss><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li> </ul> </div> </div> </nav> <div class="container-fluid main-content"> <article class='article-container clearfix'> <div class=row> <h1>Inside Ruby: Eigenclass</h1> </div> <div class="row article-info"> <div class="col-xs-12 col-sm-10 col-md-10"> <span class=date> 3 Feb 2012</span> <ul class=tags-container> <li class=tag><a href="/blogs/tags/eigenclass.html">Eigenclass</a></li> <li class=tag><a href="/blogs/tags/ruby.html">Ruby</a></li> </ul> </div> <div class="jiathis_style_24x24 col-xs-12 col-sm-2"> <a class=jiathis_button_weixin></a> <a class=jiathis_button_tsina></a> <a class=jiathis_button_tqq></a> </div> <script src="//v3.jiathis.com/code/jia.js?uid=1358051221670389" charset=utf-8></script> </div> <div class=blog-content><p>在<a href="/2012/02/02/inside-ruby-object-model.html">Inside Ruby: Object Model</a>中提到，object拥有method，但是method并不存在于object中，而是在class中，这样同一个class的不同实例可以共享method。</p> <p>我们知道在Ruby中，可以定义singleton method，这种method只针对某个特定的object定位，而其它的object则没有该方法。如下面的片段：</p> <div class="highlight ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class=lineno>1
+<!doctype html> <html xmlns:wb=“http://open.weibo.com/wb”> <head> <meta charset=utf-8 /> <meta http-equiv=X-UA-Compatible content='IE=edge;chrome=1'/> <meta name=keywords content="jiang peng,姜鹏,warmwind,Eigenclass,Ruby"> <meta name=viewport content="width=device-width, initial-scale=1"> <link href="/stylesheets/all.css" rel=stylesheet /> <script src="/javascripts/application.js"></script> <title>Inside Ruby: Eigenclass - Jiang Peng</title> </head> <body> <nav class="navbar navbar-default navbar-fixed-top" role=navigation> <div class=container-fluid> <div class=navbar-header> <button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target="#navbar-collapse-list"> <span class=sr-only>Toggle navigation</span> <span class=icon-bar></span> <span class=icon-bar></span> <span class=icon-bar></span> </button> <a class=navbar-brand href="/"><img alt="" height=80 src="http://gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg" width=80 /> <span class=title>Jiang Peng</span> </a> </div> <div class="collapse navbar-collapse" id=navbar-collapse-list> <ul class="nav navbar-nav navbar-right"> <li class=active><a href="/index.html">所有文章</a></li> <li class=apps-menu><a href="/apps.html">小程序们</a></li> <li><a href="/about.html">关于我</a></li> <li class=rss><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li> </ul> </div> </div> </nav> <div class="container-fluid main-content"> <article class='article-container clearfix'> <div class=row> <h1>Inside Ruby: Eigenclass</h1> </div> <div class="row article-info"> <div class="col-xs-12 col-sm-10 col-md-10"> <span class=date> 3 Feb 2012</span> <ul class=tags-container> <li class=tag><a href="/blogs/tags/eigenclass.html">Eigenclass</a></li> <li class=tag><a href="/blogs/tags/ruby.html">Ruby</a></li> </ul> </div> <div class="jiathis_style_24x24 col-xs-12 col-sm-2"> <a class=jiathis_button_weixin></a> <a class=jiathis_button_tsina></a> <a class=jiathis_button_tqq></a> </div> <script src="http://v3.jiathis.com/code/jia.js?uid=1358051221670389" charset=utf-8></script> </div> <div class=blog-content><p>在<a href="/2012/02/02/inside-ruby-object-model.html">Inside Ruby: Object Model</a>中提到，object拥有method，但是method并不存在于object中，而是在class中，这样同一个class的不同实例可以共享method。</p> <p>我们知道在Ruby中，可以定义singleton method，这种method只针对某个特定的object定位，而其它的object则没有该方法。如下面的片段：</p> <div class=highlight><pre class="highlight ruby"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
 5
 6
-7</pre></td><td class=code><pre><span class="n">obj</span> <span class="o">=</span> <span class="no">Object</span><span class="p">.</span><span class="nf">new</span>
+7
+</pre></td><td class=rouge-code><pre><span class="n">obj</span> <span class="o">=</span> <span class="no">Object</span><span class="p">.</span><span class="nf">new</span>
 <span class="k">def</span> <span class="nc">obj</span><span class="o">.</span><span class="nf">my_singleton_method</span>
   <span class="nb">puts</span> <span class="s1">'one singleton method'</span>
 <span class="k">end</span>
 
 <span class="n">obj</span><span class="p">.</span><span class="nf">my_singleton_method</span>            <span class="c1"># =&gt; "one singleton method"</span>
 <span class="no">Object</span><span class="p">.</span><span class="nf">new</span><span class="p">.</span><span class="nf">my_singleton_method</span>     <span class="c1"># =&gt; NoMethodError</span>
-</pre></td></tr></tbody></table> </div> <p> 那么对于singleton method如何用上述理论来解释呢？</p> <p>my<em>singleton</em>method不能存在于obj中，因为obj不是class，它也不能存在于Object这个class中，因为如果那样的话，所有的Object实例都会有这个方法，不会抛出异常。</p> <p>对class method也可以做同样的分析，因为不同的类实际是Class的不同对象，从属于某个类的class method，其它类是不会有该方法的。</p> <p>实际上，对每个object(class也是一种对象)，它还可以有一个特殊的隐藏的class，这就是Eigenclass(也叫Singleton class，Meta class)。</p> <div class="highlight ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class=lineno>1
+</pre></td></tr></tbody></table></code></pre></div> <p> 那么对于singleton method如何用上述理论来解释呢？</p> <p>my<em>singleton</em>method不能存在于obj中，因为obj不是class，它也不能存在于Object这个class中，因为如果那样的话，所有的Object实例都会有这个方法，不会抛出异常。</p> <p>对class method也可以做同样的分析，因为不同的类实际是Class的不同对象，从属于某个类的class method，其它类是不会有该方法的。</p> <p>实际上，对每个object(class也是一种对象)，它还可以有一个特殊的隐藏的class，这就是Eigenclass(也叫Singleton class，Meta class)。</p> <div class=highlight><pre class="highlight ruby"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -33,7 +34,8 @@
 20
 21
 22
-23</pre></td><td class=code><pre><span class="k">class</span> <span class="nc">Object</span>
+23
+</pre></td><td class=rouge-code><pre><span class="k">class</span> <span class="nc">Object</span>
   <span class="k">def</span> <span class="nf">eigenclass</span>
     <span class="k">class</span> <span class="o">&lt;&lt;</span> <span class="nb">self</span>
       <span class="nb">self</span>
@@ -56,14 +58,15 @@
 <span class="n">obj</span><span class="p">.</span><span class="nf">class</span>                                              <span class="c1"># =&gt; A</span>
 <span class="n">obj</span><span class="p">.</span><span class="nf">eigenclass</span><span class="p">.</span><span class="nf">superclass</span>                              <span class="c1"># =&gt; A</span>
 <span class="n">obj</span><span class="p">.</span><span class="nf">eigenclass</span><span class="p">.</span><span class="nf">instance_methods</span><span class="p">().</span><span class="nf">grep</span><span class="p">(</span><span class="sr">/a_sin/</span><span class="p">)</span>        <span class="c1"># =&gt; [:a_singleton_method]</span>
-</pre></td></tr></tbody></table> </div> <p>上面的代码片段中，首先在class Object上加入一个eigenclass方法，用于返回被隐藏的eigenclass，然后给class A定义一个class method，给class A的实例obj定义一个singleton method。从运行的结果可以看出：</p> <ul> <li>ruby的class并没有告诉我们“真相”，obj的class方法返回结果实际上应该是eigenclass而不是A。</li></li> <li>obj的method存在于它的eigenclass的instance method中，这就回答了最开始提出的那个singleton method到底存在何处的问题</li></li> </ul> <p>再看下面的片段</p> <div class="highlight ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class=lineno>1
+</pre></td></tr></tbody></table></code></pre></div> <p>上面的代码片段中，首先在class Object上加入一个eigenclass方法，用于返回被隐藏的eigenclass，然后给class A定义一个class method，给class A的实例obj定义一个singleton method。从运行的结果可以看出：</p> <ul> <li>ruby的class并没有告诉我们“真相”，obj的class方法返回结果实际上应该是eigenclass而不是A。</li></li> <li>obj的method存在于它的eigenclass的instance method中，这就回答了最开始提出的那个singleton method到底存在何处的问题</li></li> </ul> <p>再看下面的片段</p> <div class=highlight><pre class="highlight ruby"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
-4</pre></td><td class=code><pre><span class="k">class</span> <span class="nc">B</span> <span class="o">&lt;</span> <span class="no">A</span> <span class="p">;</span> <span class="k">end</span>
+4
+</pre></td><td class=rouge-code><pre><span class="k">class</span> <span class="nc">B</span> <span class="o">&lt;</span> <span class="no">A</span> <span class="p">;</span> <span class="k">end</span>
 
 <span class="no">B</span><span class="p">.</span><span class="nf">methods</span><span class="p">.</span><span class="nf">grep</span><span class="p">(</span><span class="sr">/a_/</span><span class="p">)</span>                                   <span class="c1"># =&gt; [:a_class_method]</span>
 <span class="no">B</span><span class="p">.</span><span class="nf">superclass</span><span class="p">.</span><span class="nf">eigenclass</span><span class="p">.</span><span class="nf">instance_methods</span><span class="p">.</span><span class="nf">grep</span><span class="p">(</span><span class="sr">/a_/</span><span class="p">)</span>    <span class="c1"># =&gt; [:a_class_method]</span>
-</pre></td></tr></tbody></table> </div> <p>这里想要说的是当向上寻找一个class method的时候，实际上是沿着eigenclass的super class来寻找的，也就是说一个类的eigenclass的superclass是它的superclass的eigenclass。</p> <p><a href="//book.douban.com/subject/4086938/&quot;">《Metaprogramming Ruby》</a>一书对这些有非常详细的解释，推荐参考。</p> </div> </article> <div class=rows> <div id=disqus_thread></div> <script>
+</pre></td></tr></tbody></table></code></pre></div> <p>这里想要说的是当向上寻找一个class method的时候，实际上是沿着eigenclass的super class来寻找的，也就是说一个类的eigenclass的superclass是它的superclass的eigenclass。</p> <p><a href="http://book.douban.com/subject/4086938/&quot;">《Metaprogramming Ruby》</a>一书对这些有非常详细的解释，推荐参考。</p> </div> </article> <div class=rows> <div id=disqus_thread></div> <script>
     /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
     var disqus_shortname = 'jiangpengsblog'; // required: replace example with your forum shortname
 
@@ -75,7 +78,7 @@
         dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
-</script> <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> <a href="//disqus.com" class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a> </div> </div> <script>
+</script> <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> <a href="http://disqus.com" class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a> </div> </div> <script>
 
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', 'UA-20150563-1']);

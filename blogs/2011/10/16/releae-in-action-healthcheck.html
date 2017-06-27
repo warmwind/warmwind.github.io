@@ -1,4 +1,4 @@
-<!doctype html> <html xmlns:wb=“http://open.weibo.com/wb”> <head> <meta charset=utf-8 /> <meta http-equiv=X-UA-Compatible content='IE=edge;chrome=1'/> <meta name=keywords content="jiang peng,姜鹏,warmwind,release,integration,feedback,Health Check"> <meta name=viewport content="width=device-width, initial-scale=1"> <link href="/stylesheets/all.css" rel=stylesheet /> <script src="/javascripts/application.js"></script> <title>软件发布实战 -- 状态检查 - Jiang Peng</title> </head> <body> <nav class="navbar navbar-default navbar-fixed-top" role=navigation> <div class=container-fluid> <div class=navbar-header> <button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target="#navbar-collapse-list"> <span class=sr-only>Toggle navigation</span> <span class=icon-bar></span> <span class=icon-bar></span> <span class=icon-bar></span> </button> <a class=navbar-brand href="/"><img alt="" height=80 src="//gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg" width=80 /> <span class=title>Jiang Peng</span> </a> </div> <div class="collapse navbar-collapse" id=navbar-collapse-list> <ul class="nav navbar-nav navbar-right"> <li class=active><a href="/index.html">所有文章</a></li> <li class=apps-menu><a href="/apps.html">小程序们</a></li> <li><a href="/about.html">关于我</a></li> <li class=rss><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li> </ul> </div> </div> </nav> <div class="container-fluid main-content"> <article class='article-container clearfix'> <div class=row> <h1>软件发布实战 -- 状态检查</h1> </div> <div class="row article-info"> <div class="col-xs-12 col-sm-10 col-md-10"> <span class=date>16 Oct 2011</span> <ul class=tags-container> <li class=tag><a href="/blogs/tags/release.html">release</a></li> <li class=tag><a href="/blogs/tags/integration.html">integration</a></li> <li class=tag><a href="/blogs/tags/feedback.html">feedback</a></li> <li class=tag><a href="/blogs/tags/health-check.html">Health Check</a></li> </ul> </div> <div class="jiathis_style_24x24 col-xs-12 col-sm-2"> <a class=jiathis_button_weixin></a> <a class=jiathis_button_tsina></a> <a class=jiathis_button_tqq></a> </div> <script src="//v3.jiathis.com/code/jia.js?uid=1358051221670389" charset=utf-8></script> </div> <div class=blog-content><p>当前项目的发布周期是两个星期,指的是总共6,7个项目一起发布。从第一天code cut，经历如下的过程：<img alt=deploy src="/images/deploy.png"/> 总共三个阶段，每次发布上去以后各个项目都要进行回归测试，发现bug就需要打tag，重新经过QA环境。</p> <p>如果每次环境保持比较稳定，比如发布的操作系统，部署方式都没有改变，那基于已有稳定cloud环境保证的基础上，不会打太多tag。</p> <p>但是我们就经历了上面两种方式的变化。系统从Debian改为CentOS，部署方式从同一个appliction变为两个application，同一台VM， 进而变为两个application，两个VM。这一次，在很短的时间里tag的数量就飙升到20。</p> <p>在如此紧密的发布，这么多的小版本中，如何快速完成下面两个检测呢？</p> <ul> <li>快速查看发布了正确的版本。可以点击查看当前版本中更新的内容，但显然这需要记住每个tag更改的内容，在tag较多团队太多时不实际。</li></li> <li>快速查看基础架构(比如数据库连接)运行良好。运行测试可以做到，但依然效率太低。</li></li> </ul> <p>Live Version和Health Check可以实现这一点。</p> <p>1、Live Version</p> <p>也就是显示当前运行的版本。Rails中默认显示index页面，我们可以将这个页面稍作改变，以支持版本显示。</p> <div class="highlight erb"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class=lineno>1
+<!doctype html> <html xmlns:wb=“http://open.weibo.com/wb”> <head> <meta charset=utf-8 /> <meta http-equiv=X-UA-Compatible content='IE=edge;chrome=1'/> <meta name=keywords content="jiang peng,姜鹏,warmwind,release,integration,feedback,Health Check"> <meta name=viewport content="width=device-width, initial-scale=1"> <link href="/stylesheets/all.css" rel=stylesheet /> <script src="/javascripts/application.js"></script> <title>软件发布实战 -- 状态检查 - Jiang Peng</title> </head> <body> <nav class="navbar navbar-default navbar-fixed-top" role=navigation> <div class=container-fluid> <div class=navbar-header> <button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target="#navbar-collapse-list"> <span class=sr-only>Toggle navigation</span> <span class=icon-bar></span> <span class=icon-bar></span> <span class=icon-bar></span> </button> <a class=navbar-brand href="/"><img alt="" height=80 src="http://gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg" width=80 /> <span class=title>Jiang Peng</span> </a> </div> <div class="collapse navbar-collapse" id=navbar-collapse-list> <ul class="nav navbar-nav navbar-right"> <li class=active><a href="/index.html">所有文章</a></li> <li class=apps-menu><a href="/apps.html">小程序们</a></li> <li><a href="/about.html">关于我</a></li> <li class=rss><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li> </ul> </div> </div> </nav> <div class="container-fluid main-content"> <article class='article-container clearfix'> <div class=row> <h1>软件发布实战 -- 状态检查</h1> </div> <div class="row article-info"> <div class="col-xs-12 col-sm-10 col-md-10"> <span class=date>16 Oct 2011</span> <ul class=tags-container> <li class=tag><a href="/blogs/tags/release.html">release</a></li> <li class=tag><a href="/blogs/tags/integration.html">integration</a></li> <li class=tag><a href="/blogs/tags/feedback.html">feedback</a></li> <li class=tag><a href="/blogs/tags/health-check.html">Health Check</a></li> </ul> </div> <div class="jiathis_style_24x24 col-xs-12 col-sm-2"> <a class=jiathis_button_weixin></a> <a class=jiathis_button_tsina></a> <a class=jiathis_button_tqq></a> </div> <script src="http://v3.jiathis.com/code/jia.js?uid=1358051221670389" charset=utf-8></script> </div> <div class=blog-content><p>当前项目的发布周期是两个星期,指的是总共6,7个项目一起发布。从第一天code cut，经历如下的过程：<img alt=deploy src="/images/deploy.png"/> 总共三个阶段，每次发布上去以后各个项目都要进行回归测试，发现bug就需要打tag，重新经过QA环境。</p> <p>如果每次环境保持比较稳定，比如发布的操作系统，部署方式都没有改变，那基于已有稳定cloud环境保证的基础上，不会打太多tag。</p> <p>但是我们就经历了上面两种方式的变化。系统从Debian改为CentOS，部署方式从同一个appliction变为两个application，同一台VM， 进而变为两个application，两个VM。这一次，在很短的时间里tag的数量就飙升到20。</p> <p>在如此紧密的发布，这么多的小版本中，如何快速完成下面两个检测呢？</p> <ul> <li>快速查看发布了正确的版本。可以点击查看当前版本中更新的内容，但显然这需要记住每个tag更改的内容，在tag较多团队太多时不实际。</li></li> <li>快速查看基础架构(比如数据库连接)运行良好。运行测试可以做到，但依然效率太低。</li></li> </ul> <p>Live Version和Health Check可以实现这一点。</p> <p>1、Live Version</p> <p>也就是显示当前运行的版本。Rails中默认显示index页面，我们可以将这个页面稍作改变，以支持版本显示。</p> <div class=highlight><pre class="highlight erb"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -6,7 +6,8 @@
 6
 7
 8
-9</pre></td><td class=code><pre>#live_version.html.erb
+9
+</pre></td><td class=rouge-code><pre>#live_version.html.erb
 <span class="cp">&lt;!DOCTYPE html&gt;</span>
 <span class="nt">&lt;html&gt;</span>
   <span class="nt">&lt;head&gt;</span>
@@ -15,7 +16,7 @@
   <span class="nt">&lt;/head&gt;</span>
   <span class="nt">&lt;body&gt;</span><span class="cp">&lt;%=</span> <span class="n">package_version</span> <span class="cp">%&gt;</span><span class="nt">&lt;/body&gt;</span>
 <span class="nt">&lt;/html&gt;</span>
-</pre></td></tr></tbody></table> </div> <div class="highlight ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class=lineno>1
+</pre></td></tr></tbody></table></code></pre></div><div class=highlight><pre class="highlight ruby"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -25,8 +26,9 @@
 8
 9
 10
-11</pre></td><td class=code><pre><span class="c1">#version task</span>
-<span class="n">task</span> <span class="p">:</span><span class="n">version</span> <span class="k">do</span>
+11
+</pre></td><td class=rouge-code><pre><span class="c1">#version task</span>
+<span class="n">task</span> <span class="ss">:version</span> <span class="k">do</span>
   <span class="n">write_version_file</span><span class="p">(</span><span class="s2">"live_version.html.erb"</span><span class="p">,</span> <span class="s2">"public/live_version.html"</span><span class="p">)</span>
   <span class="n">write_version_file</span><span class="p">(</span><span class="s2">"live_version.yml.erb"</span><span class="p">,</span> <span class="s2">"live_version.yml"</span><span class="p">)</span>
 <span class="k">end</span>
@@ -36,7 +38,7 @@
   <span class="n">build_id</span> <span class="o">=</span> <span class="no">ENV</span><span class="p">[</span><span class="s1">'BUILD_NUMBER'</span><span class="p">]</span> <span class="o">||</span> <span class="s1">'dev'</span>
   <span class="s2">"1.</span><span class="si">#{</span><span class="n">build_id</span><span class="si">}</span><span class="s2">"</span>
 <span class="k">end</span>
-</pre></td></tr></tbody></table> </div> <p>最上面是显示版本的页面模板, 默认的index链接到这个模板。下面是rake task, 当package整个应用时将给version具体的信息。其中用到了<a href="https://wiki.jenkins-ci.org/display/JENKINS/Parameterized+Build">Jenkins Parameter</a>的属性。这样当访问应用的根目录时会显示程序的版本信息， 实现中， 如果是普通提交构建，版本会使用时间戳，如果是Tag版本构建，会显示Git tag+ Build number+ App name的格式。</p> <p>2、Health Check</p> <p>它的作用在于快速显示程序的基本状态，比如数据库链接是否正常。我们使用了heartbeat和status两种: * Heartbeat: 当一切正常返回OK。通常在发布过程中发布了一个应用后都会去检查Hearbeat是否正常。如果异常，将使用status来查看细节。 * Status：显示每个连接的具体状态，仅在Heartbeat异常时帮助定位。</p> <p>发布的过程并不需要每个分支去测试，因为基本的功能实现有各种单元测试和集成测试，所以这种状态信息的快速反馈十分必要，这是加快发布的重要一环。</p> </div> </article> <div class=rows> <div id=disqus_thread></div> <script>
+</pre></td></tr></tbody></table></code></pre></div> <p>最上面是显示版本的页面模板, 默认的index链接到这个模板。下面是rake task, 当package整个应用时将给version具体的信息。其中用到了<a href="https://wiki.jenkins-ci.org/display/JENKINS/Parameterized+Build">Jenkins Parameter</a>的属性。这样当访问应用的根目录时会显示程序的版本信息， 实现中， 如果是普通提交构建，版本会使用时间戳，如果是Tag版本构建，会显示Git tag+ Build number+ App name的格式。</p> <p>2、Health Check</p> <p>它的作用在于快速显示程序的基本状态，比如数据库链接是否正常。我们使用了heartbeat和status两种: * Heartbeat: 当一切正常返回OK。通常在发布过程中发布了一个应用后都会去检查Hearbeat是否正常。如果异常，将使用status来查看细节。 * Status：显示每个连接的具体状态，仅在Heartbeat异常时帮助定位。</p> <p>发布的过程并不需要每个分支去测试，因为基本的功能实现有各种单元测试和集成测试，所以这种状态信息的快速反馈十分必要，这是加快发布的重要一环。</p> </div> </article> <div class=rows> <div id=disqus_thread></div> <script>
     /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
     var disqus_shortname = 'jiangpengsblog'; // required: replace example with your forum shortname
 
@@ -48,7 +50,7 @@
         dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
-</script> <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> <a href="//disqus.com" class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a> </div> </div> <script>
+</script> <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> <a href="http://disqus.com" class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a> </div> </div> <script>
 
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', 'UA-20150563-1']);
