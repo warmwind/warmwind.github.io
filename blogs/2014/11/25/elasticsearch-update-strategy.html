@@ -1,4 +1,33 @@
-<!doctype html> <html xmlns:wb=“http://open.weibo.com/wb”> <head> <meta charset=utf-8 /> <meta http-equiv=X-UA-Compatible content='IE=edge;chrome=1'/> <meta name=keywords content="jiang peng,姜鹏,warmwind,Elasticsearch"> <meta name=viewport content="width=device-width, initial-scale=1"> <link href="/stylesheets/all.css" rel=stylesheet /> <script src="/javascripts/application.js"></script> <title>Elasticsearch--更新策略 - Jiang Peng</title> </head> <body> <nav class="navbar navbar-default navbar-fixed-top" role=navigation> <div class=container-fluid> <div class=navbar-header> <button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target="#navbar-collapse-list"> <span class=sr-only>Toggle navigation</span> <span class=icon-bar></span> <span class=icon-bar></span> <span class=icon-bar></span> </button> <a class=navbar-brand href="/"><img alt="" height=80 src="http://gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg" width=80 /> <span class=title>Jiang Peng</span> </a> </div> <div class="collapse navbar-collapse" id=navbar-collapse-list> <ul class="nav navbar-nav navbar-right"> <li class=active><a href="/index.html">所有文章</a></li> <li class=apps-menu><a href="/apps.html">小程序们</a></li> <li><a href="/about.html">关于我</a></li> <li class=rss><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li> </ul> </div> </div> </nav> <div class="container-fluid main-content"> <article class='article-container clearfix'> <div class=row> <h1>Elasticsearch--更新策略</h1> </div> <div class="row article-info"> <div class="col-xs-12 col-sm-10 col-md-10"> <span class=date>25 Nov 2014</span> <ul class=tags-container> <li class=tag><a href="/blogs/tags/elasticsearch.html">Elasticsearch</a></li> </ul> </div> <div class="jiathis_style_24x24 col-xs-12 col-sm-2"> <a class=jiathis_button_weixin></a> <a class=jiathis_button_tsina></a> <a class=jiathis_button_tqq></a> </div> <script src="http://v3.jiathis.com/code/jia.js?uid=1358051221670389" charset=utf-8></script> </div> <div class=blog-content><p><a href="/blogs/2014/11/24/elasticsearch-mapping.html">前一篇</a>文章介绍了如何在Elasticsearch上做动态映射，这篇文章会介绍下如何更有效的做ES的数据更新。</p> <h3>更新频率</h3> <p>如果把ES看做另一个数据库，那么它总是会比系统原有的数据库滞后，因为数据会先存入原有数据库，再同步到ES。那么滞后的时间就是一个敏感的参数。根据业务的不同，差别很大。我了解到有的系统可以接受10分钟以上的延迟，不过我们作为一个数据平台，用户提交或修改数据后，是希望能立刻查询到修改的结果的，所以理论上是越短越好，但频繁的更新会给ES服务器带来很大的<a href="https://www.found.no/foundation/keeping-elasticsearch-in-sync/#the-problems-of-too-frequent-updates-and-non-batch-updates">开销</a>。</p> <h3>异步更新</h3> <p>更新可以采用同步和异步两种方式。</p> <ul> <li><p>同步： 使用elasticsearch-rails这个gem中的<a href="https://github.com/elasticsearch/elasticsearch-rails/tree/master/elasticsearch-model#automatic-callbacks">Automatic-Callback</a> ，在inlcude<code>Elasticsearch::Model::Callbacks</code>后，实际上就是在每一次数据增删改后使用callback来往ES发送请求。</p></li> <li><p>异步： 采用<a href="https://github.com/elasticsearch/elasticsearch-rails/tree/master/elasticsearch-model#asynchronous-callbacks">Asynchronous-Callback</a>的方式，将每一次的更新放入队列。</p></li> </ul> <p>同步的缺点是显而易见的，因为需要进行一次http请求与外部的服务器相连，影响原有的操作效率。特别是与ES的链接有问题时，会直接Timeout异常。因此在产品环境中一定要使用异步更新，它不仅规避了效率和稳定性问题，也让我们有了更大的灵活性在更新之前做更多的数据处理工作，例如后面要提到的数据聚合。</p> <h3>聚合，使用Bulk API</h3> <p>针对每一条数据的增删改就做一个更新，虽然是异步，但是在ES这边，是低效的，而且像我们这样每秒都有很多数据变化的系统是不现实的（实际上第一次上线时就采用这种方式，导致ES的CPU和内存急剧增加）。幸运的是，ES提供了Bulk API，并且也推荐使用它来进行<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/bulk.html#bulk">批量的更新</a>。一个简单的批量的请求体如下，它可以同时包含增删改操作，并且可以是多条。</p> <div class=highlight><pre class="highlight json"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+<!doctype html> <html xmlns:wb=“http://open.weibo.com/wb”> <head> <meta charset=utf-8 /> <meta http-equiv=X-UA-Compatible content='IE=edge;chrome=1'/> <meta name=keywords content="jiang peng,姜鹏,warmwind,Elasticsearch"> <meta name=viewport content="width=device-width, initial-scale=1"> <link href="/stylesheets/all.css" rel=stylesheet /> <script src="/javascripts/application.js"></script> <title>Elasticsearch--更新策略 - Jiang Peng</title> <script>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-20150563-1"></script> <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-20150563-1');
+</script> <script>
+function _howxm(){_howxmQueue.push(arguments)}
+window._howxmQueue=window._howxmQueue||[];
+_howxm('setAppID','d6d3f0d2-15d3-440f-9f5d-ab89e7d44441');
+(function(){var scriptId='howxm_script';
+if(!document.getElementById(scriptId)){
+var e=document.createElement('script'),
+t=document.getElementsByTagName('script')[0];
+e.setAttribute('id',scriptId);
+e.type='text/javascript';e.defer=!0;
+e.src='https://static.howxm.com/sdk.js';
+t.parentNode.insertBefore(e,t)}})();
+</script> <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?fd5d3224fadf27b56d5304555e097c16";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script> </head> <body> <nav class="navbar navbar-default navbar-fixed-top" role=navigation> <div class=container-fluid> <div class=navbar-header> <button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target="#navbar-collapse-list"> <span class=sr-only>Toggle navigation</span> <span class=icon-bar></span> <span class=icon-bar></span> <span class=icon-bar></span> </button> <a class=navbar-brand href="/"><img alt="" height=80 src="http://gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg" width=80 /> <span class=title>Jiang Peng</span> </a> </div> <div class="collapse navbar-collapse" id=navbar-collapse-list> <ul class="nav navbar-nav navbar-right"> <li class=active><a href="/index.html">所有文章</a></li> <li class=apps-menu><a href="/apps.html">小程序们</a></li> <li><a href="/about.html">关于我</a></li> <li class=rss><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li> </ul> </div> </div> </nav> <div class="container-fluid main-content"> <article class='article-container clearfix'> <div class=row> <h1>Elasticsearch--更新策略</h1> </div> <div class="row article-info"> <div class="col-xs-12 col-sm-10 col-md-10"> <span class=date>25 Nov 2014</span> <ul class=tags-container> <li class=tag><a href="/blogs/tags/elasticsearch.html">Elasticsearch</a></li> </ul> </div> <div class="jiathis_style_24x24 col-xs-12 col-sm-2"> <a class=jiathis_button_weixin></a> <a class=jiathis_button_tsina></a> <a class=jiathis_button_tqq></a> </div> <script src="http://v3.jiathis.com/code/jia.js?uid=1358051221670389" charset=utf-8></script> </div> <div class=blog-content><p><a href="/blogs/2014/11/24/elasticsearch-mapping.html">前一篇</a>文章介绍了如何在Elasticsearch上做动态映射，这篇文章会介绍下如何更有效的做ES的数据更新。</p> <h3>更新频率</h3> <p>如果把ES看做另一个数据库，那么它总是会比系统原有的数据库滞后，因为数据会先存入原有数据库，再同步到ES。那么滞后的时间就是一个敏感的参数。根据业务的不同，差别很大。我了解到有的系统可以接受10分钟以上的延迟，不过我们作为一个数据平台，用户提交或修改数据后，是希望能立刻查询到修改的结果的，所以理论上是越短越好，但频繁的更新会给ES服务器带来很大的<a href="https://www.found.no/foundation/keeping-elasticsearch-in-sync/#the-problems-of-too-frequent-updates-and-non-batch-updates">开销</a>。</p> <h3>异步更新</h3> <p>更新可以采用同步和异步两种方式。</p> <ul> <li><p>同步： 使用elasticsearch-rails这个gem中的<a href="https://github.com/elasticsearch/elasticsearch-rails/tree/master/elasticsearch-model#automatic-callbacks">Automatic-Callback</a> ，在inlcude<code>Elasticsearch::Model::Callbacks</code>后，实际上就是在每一次数据增删改后使用callback来往ES发送请求。</p></li> <li><p>异步： 采用<a href="https://github.com/elasticsearch/elasticsearch-rails/tree/master/elasticsearch-model#asynchronous-callbacks">Asynchronous-Callback</a>的方式，将每一次的更新放入队列。</p></li> </ul> <p>同步的缺点是显而易见的，因为需要进行一次http请求与外部的服务器相连，影响原有的操作效率。特别是与ES的链接有问题时，会直接Timeout异常。因此在产品环境中一定要使用异步更新，它不仅规避了效率和稳定性问题，也让我们有了更大的灵活性在更新之前做更多的数据处理工作，例如后面要提到的数据聚合。</p> <h3>聚合，使用Bulk API</h3> <p>针对每一条数据的增删改就做一个更新，虽然是异步，但是在ES这边，是低效的，而且像我们这样每秒都有很多数据变化的系统是不现实的（实际上第一次上线时就采用这种方式，导致ES的CPU和内存急剧增加）。幸运的是，ES提供了Bulk API，并且也推荐使用它来进行<a href="http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/bulk.html#bulk">批量的更新</a>。一个简单的批量的请求体如下，它可以同时包含增删改操作，并且可以是多条。</p> <div class=highlight><pre class="highlight json"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -24,19 +53,4 @@
         dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
-</script> <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> <a href="http://disqus.com" class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a> </div> </div> <script>
-
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-20150563-1']);
-    _gaq.push(['_trackPageview']);
-
-    (function () {
-        var ga = document.createElement('script');
-        ga.type = 'text/javascript';
-        ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(ga, s);
-    })();
-
-</script> </body> </html>
+</script> <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> <a href="http://disqus.com" class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a> </div> </div> </body> </html>

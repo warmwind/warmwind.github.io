@@ -1,4 +1,33 @@
-<!doctype html> <html xmlns:wb=“http://open.weibo.com/wb”> <head> <meta charset=utf-8 /> <meta http-equiv=X-UA-Compatible content='IE=edge;chrome=1'/> <meta name=keywords content="jiang peng,姜鹏,warmwind,MapReduce,MongoDB"> <meta name=viewport content="width=device-width, initial-scale=1"> <link href="/stylesheets/all.css" rel=stylesheet /> <script src="/javascripts/application.js"></script> <title>MapReduce: 一个i和1导致的悲剧 - Jiang Peng</title> </head> <body> <nav class="navbar navbar-default navbar-fixed-top" role=navigation> <div class=container-fluid> <div class=navbar-header> <button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target="#navbar-collapse-list"> <span class=sr-only>Toggle navigation</span> <span class=icon-bar></span> <span class=icon-bar></span> <span class=icon-bar></span> </button> <a class=navbar-brand href="/"><img alt="" height=80 src="http://gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg" width=80 /> <span class=title>Jiang Peng</span> </a> </div> <div class="collapse navbar-collapse" id=navbar-collapse-list> <ul class="nav navbar-nav navbar-right"> <li class=active><a href="/index.html">所有文章</a></li> <li class=apps-menu><a href="/apps.html">小程序们</a></li> <li><a href="/about.html">关于我</a></li> <li class=rss><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li> </ul> </div> </div> </nav> <div class="container-fluid main-content"> <article class='article-container clearfix'> <div class=row> <h1>MapReduce: 一个i和1导致的悲剧</h1> </div> <div class="row article-info"> <div class="col-xs-12 col-sm-10 col-md-10"> <span class=date>26 Nov 2012</span> <ul class=tags-container> <li class=tag><a href="/blogs/tags/mapreduce.html">MapReduce</a></li> <li class=tag><a href="/blogs/tags/mongodb.html">MongoDB</a></li> </ul> </div> <div class="jiathis_style_24x24 col-xs-12 col-sm-2"> <a class=jiathis_button_weixin></a> <a class=jiathis_button_tsina></a> <a class=jiathis_button_tqq></a> </div> <script src="http://v3.jiathis.com/code/jia.js?uid=1358051221670389" charset=utf-8></script> </div> <div class=blog-content><p>听说MapReduce已经很久了，这两天才第一次真正的尝试一下。要说的是因为一个很简单的错误，折腾了好一会儿，刚好让我有了更多的理解。因祸得福吧。</p> <p>要实现的是一个很简单的功能，统计每一天新增的数据的数量，以天为单位，数据库中的created_at字段存储是以秒为单位的。考虑到将来这样的数据可能会非常大，所以使用MapReduce就成了自然的选择。 我使用的是mongodb,最开始的代码如下：</p> <div class=highlight><pre class="highlight ruby"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+<!doctype html> <html xmlns:wb=“http://open.weibo.com/wb”> <head> <meta charset=utf-8 /> <meta http-equiv=X-UA-Compatible content='IE=edge;chrome=1'/> <meta name=keywords content="jiang peng,姜鹏,warmwind,MapReduce,MongoDB"> <meta name=viewport content="width=device-width, initial-scale=1"> <link href="/stylesheets/all.css" rel=stylesheet /> <script src="/javascripts/application.js"></script> <title>MapReduce: 一个i和1导致的悲剧 - Jiang Peng</title> <script>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-20150563-1"></script> <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-20150563-1');
+</script> <script>
+function _howxm(){_howxmQueue.push(arguments)}
+window._howxmQueue=window._howxmQueue||[];
+_howxm('setAppID','d6d3f0d2-15d3-440f-9f5d-ab89e7d44441');
+(function(){var scriptId='howxm_script';
+if(!document.getElementById(scriptId)){
+var e=document.createElement('script'),
+t=document.getElementsByTagName('script')[0];
+e.setAttribute('id',scriptId);
+e.type='text/javascript';e.defer=!0;
+e.src='https://static.howxm.com/sdk.js';
+t.parentNode.insertBefore(e,t)}})();
+</script> <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?fd5d3224fadf27b56d5304555e097c16";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script> </head> <body> <nav class="navbar navbar-default navbar-fixed-top" role=navigation> <div class=container-fluid> <div class=navbar-header> <button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target="#navbar-collapse-list"> <span class=sr-only>Toggle navigation</span> <span class=icon-bar></span> <span class=icon-bar></span> <span class=icon-bar></span> </button> <a class=navbar-brand href="/"><img alt="" height=80 src="http://gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg" width=80 /> <span class=title>Jiang Peng</span> </a> </div> <div class="collapse navbar-collapse" id=navbar-collapse-list> <ul class="nav navbar-nav navbar-right"> <li class=active><a href="/index.html">所有文章</a></li> <li class=apps-menu><a href="/apps.html">小程序们</a></li> <li><a href="/about.html">关于我</a></li> <li class=rss><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li> </ul> </div> </div> </nav> <div class="container-fluid main-content"> <article class='article-container clearfix'> <div class=row> <h1>MapReduce: 一个i和1导致的悲剧</h1> </div> <div class="row article-info"> <div class="col-xs-12 col-sm-10 col-md-10"> <span class=date>26 Nov 2012</span> <ul class=tags-container> <li class=tag><a href="/blogs/tags/mapreduce.html">MapReduce</a></li> <li class=tag><a href="/blogs/tags/mongodb.html">MongoDB</a></li> </ul> </div> <div class="jiathis_style_24x24 col-xs-12 col-sm-2"> <a class=jiathis_button_weixin></a> <a class=jiathis_button_tsina></a> <a class=jiathis_button_tqq></a> </div> <script src="http://v3.jiathis.com/code/jia.js?uid=1358051221670389" charset=utf-8></script> </div> <div class=blog-content><p>听说MapReduce已经很久了，这两天才第一次真正的尝试一下。要说的是因为一个很简单的错误，折腾了好一会儿，刚好让我有了更多的理解。因祸得福吧。</p> <p>要实现的是一个很简单的功能，统计每一天新增的数据的数量，以天为单位，数据库中的created_at字段存储是以秒为单位的。考虑到将来这样的数据可能会非常大，所以使用MapReduce就成了自然的选择。 我使用的是mongodb,最开始的代码如下：</p> <div class=highlight><pre class="highlight ruby"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
 4
@@ -52,19 +81,4 @@ function(key, values) {
         dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
-</script> <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> <a href="http://disqus.com" class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a> </div> </div> <script>
-
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-20150563-1']);
-    _gaq.push(['_trackPageview']);
-
-    (function () {
-        var ga = document.createElement('script');
-        ga.type = 'text/javascript';
-        ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(ga, s);
-    })();
-
-</script> </body> </html>
+</script> <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> <a href="http://disqus.com" class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a> </div> </div> </body> </html>

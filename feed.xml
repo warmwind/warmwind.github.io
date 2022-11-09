@@ -5,7 +5,7 @@
   <id>http://jiangpeng.info/</id>
   <link href="http://jiangpeng.info/"/>
   <link href="http://jiangpeng.info/feed.xml" rel="self"/>
-  <updated>2015-01-22T08:00:00+08:00</updated>
+  <updated>2015-01-22T00:00:00Z</updated>
   <author>
     <name>姜鹏</name>
   </author>
@@ -13,8 +13,8 @@
     <title>为什么Turbolinks发送了两次请求</title>
     <link rel="alternate" href="/blogs/2015/01/22/turbolinks-request-twice.html"/>
     <id>/blogs/2015/01/22/turbolinks-request-twice.html</id>
-    <published>2015-01-22T08:00:00+08:00</published>
-    <updated>2015-01-22T08:00:00+08:00</updated>
+    <published>2015-01-22T00:00:00Z</published>
+    <updated>2015-01-22T00:00:00Z</updated>
     <author>
       <name>姜鹏</name>
     </author>
@@ -139,8 +139,8 @@
     <title>Elasticsearch--更新策略</title>
     <link rel="alternate" href="/blogs/2014/11/25/elasticsearch-update-strategy.html"/>
     <id>/blogs/2014/11/25/elasticsearch-update-strategy.html</id>
-    <published>2014-11-25T08:00:00+08:00</published>
-    <updated>2014-11-25T08:00:00+08:00</updated>
+    <published>2014-11-25T00:00:00Z</published>
+    <updated>2014-11-25T00:00:00Z</updated>
     <author>
       <name>姜鹏</name>
     </author>
@@ -202,8 +202,8 @@
     <title>Elasticsearch--动态类型字段的mapping</title>
     <link rel="alternate" href="/blogs/2014/11/24/elasticsearch-mapping.html"/>
     <id>/blogs/2014/11/24/elasticsearch-mapping.html</id>
-    <published>2014-11-24T08:00:00+08:00</published>
-    <updated>2014-11-24T08:00:00+08:00</updated>
+    <published>2014-11-24T00:00:00Z</published>
+    <updated>2014-11-24T00:00:00Z</updated>
     <author>
       <name>姜鹏</name>
     </author>
@@ -405,8 +405,8 @@
     <title>Rails CSRF token 探秘</title>
     <link rel="alternate" href="/blogs/2014/09/26/secret-of-rails-csrf-token.html"/>
     <id>/blogs/2014/09/26/secret-of-rails-csrf-token.html</id>
-    <published>2014-09-26T08:00:00+08:00</published>
-    <updated>2014-09-26T08:00:00+08:00</updated>
+    <published>2014-09-26T00:00:00Z</published>
+    <updated>2014-09-26T00:00:00Z</updated>
     <author>
       <name>姜鹏</name>
     </author>
@@ -518,8 +518,8 @@ meta content="VY13wlC2rgGccbkxyvm7Z1WX4LKH+71vzIj+8Um0QO8=" name="csrf-token" /&
     <title>Tricks On Upgrading Rails From 3.2 to 4.0</title>
     <link rel="alternate" href="/blogs/2014/08/26/tricks-on-upgrading-rails-from-3-2-to-4-0.html"/>
     <id>/blogs/2014/08/26/tricks-on-upgrading-rails-from-3-2-to-4-0.html</id>
-    <published>2014-08-26T08:00:00+08:00</published>
-    <updated>2014-08-26T08:00:00+08:00</updated>
+    <published>2014-08-26T00:00:00Z</published>
+    <updated>2014-08-26T00:00:00Z</updated>
     <author>
       <name>姜鹏</name>
     </author>
@@ -625,8 +625,8 @@ meta content="VY13wlC2rgGccbkxyvm7Z1WX4LKH+71vzIj+8Um0QO8=" name="csrf-token" /&
     <title>Nginx 与 Unicorn</title>
     <link rel="alternate" href="/blogs/2014/03/10/nginx-unicorn.html"/>
     <id>/blogs/2014/03/10/nginx-unicorn.html</id>
-    <published>2014-03-10T08:00:00+08:00</published>
-    <updated>2014-03-10T08:00:00+08:00</updated>
+    <published>2014-03-10T00:00:00Z</published>
+    <updated>2014-03-10T00:00:00Z</updated>
     <author>
       <name>姜鹏</name>
     </author>

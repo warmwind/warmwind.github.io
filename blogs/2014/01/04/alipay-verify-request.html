@@ -1,4 +1,33 @@
-<!doctype html> <html xmlns:wb=“http://open.weibo.com/wb”> <head> <meta charset=utf-8 /> <meta http-equiv=X-UA-Compatible content='IE=edge;chrome=1'/> <meta name=keywords content="jiang peng,姜鹏,warmwind,alipay"> <meta name=viewport content="width=device-width, initial-scale=1"> <link href="/stylesheets/all.css" rel=stylesheet /> <script src="/javascripts/application.js"></script> <title>支付宝集成——校验与应答 - Jiang Peng</title> </head> <body> <nav class="navbar navbar-default navbar-fixed-top" role=navigation> <div class=container-fluid> <div class=navbar-header> <button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target="#navbar-collapse-list"> <span class=sr-only>Toggle navigation</span> <span class=icon-bar></span> <span class=icon-bar></span> <span class=icon-bar></span> </button> <a class=navbar-brand href="/"><img alt="" height=80 src="http://gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg" width=80 /> <span class=title>Jiang Peng</span> </a> </div> <div class="collapse navbar-collapse" id=navbar-collapse-list> <ul class="nav navbar-nav navbar-right"> <li class=active><a href="/index.html">所有文章</a></li> <li class=apps-menu><a href="/apps.html">小程序们</a></li> <li><a href="/about.html">关于我</a></li> <li class=rss><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li> </ul> </div> </div> </nav> <div class="container-fluid main-content"> <article class='article-container clearfix'> <div class=row> <h1>支付宝集成——校验与应答</h1> </div> <div class="row article-info"> <div class="col-xs-12 col-sm-10 col-md-10"> <span class=date> 4 Jan 2014</span> <ul class=tags-container> <li class=tag><a href="/blogs/tags/alipay.html">alipay</a></li> </ul> </div> <div class="jiathis_style_24x24 col-xs-12 col-sm-2"> <a class=jiathis_button_weixin></a> <a class=jiathis_button_tsina></a> <a class=jiathis_button_tqq></a> </div> <script src="http://v3.jiathis.com/code/jia.js?uid=1358051221670389" charset=utf-8></script> </div> <div class=blog-content><p>前一篇文章介绍了如何生成支付宝的请求URL，当顺利打开支付宝的登录页面后，这里的操作就与应用本身无关了，完全在支付宝内部完成。当用户的交易状态改变，比如付款成功时，支付宝会通过POST发送请求URL中设定的notify_url。由于通常都需要在回调中进行业务逻辑处理，因为，为了防止恶意或伪造请求，需要对该请求进行严格的校验。</p> <h4>MD5校验</h4> <p>按照请求URL中的规则，对参数再进行一次MD5运算，与传递过来的sign值进行比较，这是为了保证URL的完整性，参数的值没有在传递过程中被篡改，因为需要的KEY值只有支付宝和系统内部可知。</p> <p></p> <h4>支付宝校验</h4> <p>对网页版的支付异步回调，支付宝提供了专门的service来校验合法性。在收到POST请求的<em>一分钟内</em>，可以请求下面的地址，如果返回的body是个字符串true，则这是个有效的通知。 手机版是没有这个校验service的。</p> <div class=highlight><pre class="highlight html"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+<!doctype html> <html xmlns:wb=“http://open.weibo.com/wb”> <head> <meta charset=utf-8 /> <meta http-equiv=X-UA-Compatible content='IE=edge;chrome=1'/> <meta name=keywords content="jiang peng,姜鹏,warmwind,alipay"> <meta name=viewport content="width=device-width, initial-scale=1"> <link href="/stylesheets/all.css" rel=stylesheet /> <script src="/javascripts/application.js"></script> <title>支付宝集成——校验与应答 - Jiang Peng</title> <script>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-20150563-1"></script> <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-20150563-1');
+</script> <script>
+function _howxm(){_howxmQueue.push(arguments)}
+window._howxmQueue=window._howxmQueue||[];
+_howxm('setAppID','d6d3f0d2-15d3-440f-9f5d-ab89e7d44441');
+(function(){var scriptId='howxm_script';
+if(!document.getElementById(scriptId)){
+var e=document.createElement('script'),
+t=document.getElementsByTagName('script')[0];
+e.setAttribute('id',scriptId);
+e.type='text/javascript';e.defer=!0;
+e.src='https://static.howxm.com/sdk.js';
+t.parentNode.insertBefore(e,t)}})();
+</script> <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?fd5d3224fadf27b56d5304555e097c16";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script> </head> <body> <nav class="navbar navbar-default navbar-fixed-top" role=navigation> <div class=container-fluid> <div class=navbar-header> <button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target="#navbar-collapse-list"> <span class=sr-only>Toggle navigation</span> <span class=icon-bar></span> <span class=icon-bar></span> <span class=icon-bar></span> </button> <a class=navbar-brand href="/"><img alt="" height=80 src="http://gravatar.com/avatar/1c2394549f198e7e8fc76c9e7e243bd0.jpg" width=80 /> <span class=title>Jiang Peng</span> </a> </div> <div class="collapse navbar-collapse" id=navbar-collapse-list> <ul class="nav navbar-nav navbar-right"> <li class=active><a href="/index.html">所有文章</a></li> <li class=apps-menu><a href="/apps.html">小程序们</a></li> <li><a href="/about.html">关于我</a></li> <li class=rss><a href="/feed.xml"><img src="/images/rss.png" alt=""></a></li> </ul> </div> </div> </nav> <div class="container-fluid main-content"> <article class='article-container clearfix'> <div class=row> <h1>支付宝集成——校验与应答</h1> </div> <div class="row article-info"> <div class="col-xs-12 col-sm-10 col-md-10"> <span class=date> 4 Jan 2014</span> <ul class=tags-container> <li class=tag><a href="/blogs/tags/alipay.html">alipay</a></li> </ul> </div> <div class="jiathis_style_24x24 col-xs-12 col-sm-2"> <a class=jiathis_button_weixin></a> <a class=jiathis_button_tsina></a> <a class=jiathis_button_tqq></a> </div> <script src="http://v3.jiathis.com/code/jia.js?uid=1358051221670389" charset=utf-8></script> </div> <div class=blog-content><p>前一篇文章介绍了如何生成支付宝的请求URL，当顺利打开支付宝的登录页面后，这里的操作就与应用本身无关了，完全在支付宝内部完成。当用户的交易状态改变，比如付款成功时，支付宝会通过POST发送请求URL中设定的notify_url。由于通常都需要在回调中进行业务逻辑处理，因为，为了防止恶意或伪造请求，需要对该请求进行严格的校验。</p> <h4>MD5校验</h4> <p>按照请求URL中的规则，对参数再进行一次MD5运算，与传递过来的sign值进行比较，这是为了保证URL的完整性，参数的值没有在传递过程中被篡改，因为需要的KEY值只有支付宝和系统内部可知。</p> <p></p> <h4>支付宝校验</h4> <p>对网页版的支付异步回调，支付宝提供了专门的service来校验合法性。在收到POST请求的<em>一分钟内</em>，可以请求下面的地址，如果返回的body是个字符串true，则这是个有效的通知。 手机版是没有这个校验service的。</p> <div class=highlight><pre class="highlight html"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 </pre></td><td class=rouge-code><pre>https://mapi.alipay.com/gateway.do?service=notify_verify?partner=xxxxx<span class="err">&amp;</span>notify_id=xxxxx
 </pre></td></tr></tbody></table></code></pre></div> <p>支付宝的异步通知规则为,所以当异步回调成功处理之后，一定要返回success文字，并且要在业务逻辑上注意检测是否已经处理过该请求，防止重复处理。</p> <blockquote> <p>程序执行完后必须打印输出“success”(不包含引号、前后无空格和其他多 余字符)。如果商户反馈给支付宝的字符不是 success 这 7 个字符,支付宝 服务器会不断重发通知,直到超过 24 小时 22 分钟。 一般情况下,25 小时以内完成 8 次通知(通知的间隔频率一般是: 2m,10m,10m,1h,2h,6h,15h)</p> </blockquote> <p>此篇与上篇文章介绍了与支付宝交互的内部流程，实际在开发中有很多库可用，它们主要提供了生成URL，校验，以及通知内容的封装等。基于Ruby On Rails的技术栈，我们采用了下面两个gem：</p> <ul> <li><a href="https://github.com/Shopify/active_merchant" target=_blank>activemerchant</a>：这个集成了全球流行的支付网关</li> <li><a href="https://github.com/flyerhzm/activemerchant_patch_for_china" target=_blank>activemerchant_patch_for_china</a>：这个gem集成了 alipay (支付宝), 99bill (快钱), tenpay (财付通), 19pay(捷迅支付) and yeepay(易宝)</li> </ul> <p>在支付宝手机网页支付方面，由于当时没有找到现成的gem，所以就是自己实现了。</p> <p>前两天在上看到Ruby China上的<a href="http://ruby-china.org/topics/12992" target=_blank>这篇文章</a>介绍了一个gem，专门用于支付宝，可以通过查看它的源代码来了解实现细节。不够这个gem似乎也还不包括手机移动支付的部分。</p> </div> </article> <div class=rows> <div id=disqus_thread></div> <script>
     /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
@@ -12,19 +41,4 @@
         dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
-</script> <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> <a href="http://disqus.com" class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a> </div> </div> <script>
-
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-20150563-1']);
-    _gaq.push(['_trackPageview']);
-
-    (function () {
-        var ga = document.createElement('script');
-        ga.type = 'text/javascript';
-        ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(ga, s);
-    })();
-
-</script> </body> </html>
+</script> <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript> <a href="http://disqus.com" class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a> </div> </div> </body> </html>
