@@ -5,10 +5,103 @@
   <id>http://jiangpeng.info/</id>
   <link href="http://jiangpeng.info/"/>
   <link href="http://jiangpeng.info/feed.xml" rel="self"/>
-  <updated>2015-01-22T00:00:00Z</updated>
+  <updated>2023-01-29T00:00:00Z</updated>
   <author>
     <name>姜鹏</name>
   </author>
+  <entry>
+    <title>重视贡献，为成果而工作</title>
+    <link rel="alternate" href="/blogs/2023/01/29/focus-on-contribution.html"/>
+    <id>/blogs/2023/01/29/focus-on-contribution.html</id>
+    <published>2023-01-29T00:00:00Z</published>
+    <updated>2023-01-29T00:00:00Z</updated>
+    <author>
+      <name>姜鹏</name>
+    </author>
+    <content type="html">&lt;blockquote&gt;
+&lt;p&gt;有效的管理者重视对外界的贡献。他们并非为工作而工作，而是为成果而工作。&lt;/p&gt;
+
+&lt;p&gt;提出“我能做出什么贡献”的问题，是为了挖掘工作中尚未发挥的潜力。事实上许多工作看起来成绩辉煌，但是与潜在的贡献比起来，实在是微不足道。&lt;/p&gt;
+
+&lt;p&gt;重视贡献，才能使管理者的注意力不为其本身的专长所限，不为其本身的技术所限，不为其本身所属的部门所限，才能看到整体的绩效，同时也才能使他更加重视外部世界。只有外部世界才是产生成果的地方。&lt;/p&gt;
+
+&lt;p&gt;—— 彼得·德鲁克 《卓有成效的管理者》&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2&gt;成果带来价值&lt;/h2&gt;
+
+&lt;p&gt;考虑如下场景：&lt;/p&gt;
+
+&lt;p&gt;产品经理组织一个showcase，向市场、销售、客服等业务部门介绍准备上线的功能。大家都很兴奋，针对功能的细节展开激烈的讨论。接下来他综合大家的反馈，进行优化调整，并最终部署上线。&lt;/p&gt;
+
+&lt;p&gt;这是日常迭代开发中一个非常普通的环节，通过内部演示，一方面周知不同团队新的功能，一方面收集更多的反馈以避免大面积的事故。&lt;/p&gt;
+
+&lt;p&gt;产品经理完成了一个阶段性的工作目标，接下又很快投入到下一个目标的实现中。&lt;/p&gt;
+
+&lt;p&gt;然而，所有这些只是工作的内容，产品经理的工作成果是什么呢？&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;功能按时上线？&lt;/li&gt;
+&lt;li&gt;其他部门同事知晓并理解了该功能？&lt;/li&gt;
+&lt;li&gt;该功能在线上被客户使用？&lt;/li&gt;
+&lt;li&gt;客户的工作因为该功能而更好地完成？&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;显而易见，第4个答案更合适，因为它与组织的目标一致，而且它不是内部的结果，不由身边的同事来决定。&lt;/p&gt;
+
+&lt;p&gt;由此为前提，产品经理的行动范围就自然扩大到更广的范畴：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;分析客户的使用情况，完成同样目标所耗费的时间如何变化&lt;/li&gt;
+&lt;li&gt;访谈客户的使用体验，新功能带来的整体变化感知是否提升&lt;/li&gt;
+&lt;li&gt;跟进业务的使用反馈，对外部的宣传是否都正确合理的传达&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;在这个范畴内完成的工作成果，才带来最终的价值。&lt;/p&gt;
+
+&lt;h2&gt;如何聚焦成果&lt;/h2&gt;
+
+&lt;p&gt;那么如何避免为了工作而工作，而是为成果而工作呢，在开始工作之前，可以追问自己如下的问题：&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;客户、组织或者同事期望我的贡献是什么？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;采用这种方式思考，从成果出发来确定行动，能给予行动更具方向性的指导。&lt;/p&gt;
+
+&lt;p&gt;以产研团队举例，从外部来需求来看，他们的贡献可以是：&lt;/p&gt;
+
+&lt;h3&gt;从客户角度&lt;/h3&gt;
+
+&lt;p&gt;他们希望使用产品过程顺畅、便捷，那么目标可以是：
+- 通过仔细分析客户的使用情况，始终保持产品的易用，而不是随着功能的丰富，复杂度不断增加。例如通过费力度（CES）来衡量
+- 保持对客户使用场景和需求的敏感度，真正协助客户完成其工作，避免闭门造车
+- 提供良好的客户体验，不为了「炫耀」产品的能力而随意堆叠。例如通过NPS（推荐度）来衡量
+- 构建良好的产品监控闭环，保持与用户的持续互动&lt;/p&gt;
+
+&lt;h3&gt;从市场/销售角度&lt;/h3&gt;
+
+&lt;p&gt;他们希望能向外界传达清晰的产品理念，那么目标可以是：
+- 让每个人在完成自己的「As…, I want…, So that」时，都充分理解「So that」
+- 梳理并使用一致的术语，确保我们与客户之间的沟通不存在歧义
+- 通过业务人员，建立产研团队与客户之间的沟通渠道，从客户的角度来看待产研的产出&lt;/p&gt;
+
+&lt;h3&gt;从客服角度&lt;/h3&gt;
+
+&lt;p&gt;他们希望客户遇到问题时，可以更快得到解决，那么目标可以是：
+- 产品自身提供良好的错误提示，客户可以根据提示，自主解决
+- 提供高效的运营工具，帮助客服快速获得相关信息，定位问题
+- 提供足够的系统监控，主动发现问题，先于更多客户发现而解决
+- 不断优化CI/CD，保证客户7x24使用，保证出现问题时有及时修复的基础
+- 针对产品问题问题，从根本上解决，避免重复出现，伤害客户体验和团队信心&lt;/p&gt;
+
+&lt;h3&gt;从组织角度&lt;/h3&gt;
+
+&lt;p&gt;他们希望成本可控，希望成员成长，那么目标可以是：
+- 在产品型团队中，产研投入都是重中之重，既需要投入，又需要克制。因此要保持成本意识，持续优化人效
+- 构建学习和成长的氛围，通过富有挑战的任务，获得各方面的提升，避免低效的重复&lt;/p&gt;
+
+&lt;p&gt;为成果工作，重视贡献时，便不再强调自己的角色和能力，而是外部的需要，那么所谓的部门墙也就不会存在。如此，越是高阶管理者，直接成果就会趋向一致，那就是组织的使命。&lt;/p&gt;
+</content>
+  </entry>
   <entry>
     <title>为什么Turbolinks发送了两次请求</title>
     <link rel="alternate" href="/blogs/2015/01/22/turbolinks-request-twice.html"/>
@@ -618,129 +711,6 @@ meta content="VY13wlC2rgGccbkxyvm7Z1WX4LKH+71vzIj+8Um0QO8=" name="csrf-token" /&
 &lt;li&gt;&lt;a href="http://www.oschina.net/translate/get-your-app-ready-for-rails-4"&gt;http://www.oschina.net/translate/get-your-app-ready-for-rails-4&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://ruby-china.org/topics/15579"&gt;https://ruby-china.org/topics/15579&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="http://www.sitepoint.com/get-your-app-ready-for-rails-4/"&gt;http://www.sitepoint.com/get-your-app-ready-for-rails-4/&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</content>
-  </entry>
-  <entry>
-    <title>Nginx 与 Unicorn</title>
-    <link rel="alternate" href="/blogs/2014/03/10/nginx-unicorn.html"/>
-    <id>/blogs/2014/03/10/nginx-unicorn.html</id>
-    <published>2014-03-10T00:00:00Z</published>
-    <updated>2014-03-10T00:00:00Z</updated>
-    <author>
-      <name>姜鹏</name>
-    </author>
-    <content type="html">&lt;p&gt;Capistrano, Nginx 与 Unicorn的搭配作为Rails应用的部署方式是现在成熟与流行的模式，&lt;a href="https://coderwall.com/p/yz8cha"&gt;Deploying Rails app using Nginx, Unicorn, Postgres and Capistrano to Digital Ocean&lt;/a&gt;这篇文章详细介绍了如何来使用，本文希望稍微深入一些来看看Nginx与Unicorn之间是如何通信的，以及Unicorn如何实现部署时做到了零宕机。&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;
-
-&lt;h4&gt;Unicorn&lt;/h4&gt;
-
-&lt;p&gt;Unicorn是应用服务器，以master/workers的模式工作。当master进程启动时，会将整个应用加载到内存中，之后会fork出若干个worker，master不处理任何请求，这时worker的工作。master进程管理所有的worker，它清楚每个worker处理请求的时间，当超过某个阈值时，会kill掉这个worker，并立刻fork出一个新的，以防止大量耗时的请求将worker耗尽。fork一个worker是瞬间完成的。&lt;/p&gt;
-
-&lt;h4&gt;负载均衡&lt;/h4&gt;
-
-&lt;p&gt;传统的负载均衡是会基于某种算法（例如根据worker上次一个处理的时间）将下一个request加入到worker的队里中，但是如果很不幸这个worker正在处理的是一个耗时的操作，那么队列中的后续请求就block了。而unicorn的负载均衡是Unix系统内核完成的，所有的worker在就绪时通过unix的select(2)来从队列中（这里的队列其实是shared listen socket）抓取请求。通过这种方式，请求队列在master进程上，而一旦有可用的worker，就可以立即进行处理，而不会出现前面的问题，除非所有的worker都在处理慢请求，那只能等到超时后被master kill掉，然后重新fork出worker。
-当然，如果出现这种情况，就是系统本身有问题或者遭到了攻击。&lt;/p&gt;
-
-&lt;h4&gt;零宕机部署&lt;/h4&gt;
-
-&lt;p&gt;&lt;a href="http://capistranorb.com"&gt;Capistrano&lt;/a&gt;是一个简单易用的自动化部署工具，可通过脚本配置，将应用部署到多个服务器中，支持在不同的部署阶段执行相应的任务。不过零宕机部署的主要功劳在unicorn。在部署时，我们会向当前的unicorn master进程发送USER2信号，它会开始创建一个新的master进程，重新加载应用。之后fork它自己需要的worker。第一个fork出的子进程会发现还有另一个旧的master进程，那么就会向它发送QUIT信号，旧master会等待自己所有的worker完成当前的请求后终止。由于旧的worker会继续处理完当时的请求，所以用户不会察觉到程序的修改，而同时，新的master和worker已经开始工作，所有新来的请求会由新的worker处理，这样就实现了零宕机。&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;ul&gt;
-&lt;li&gt;QUIT - graceful shutdown, waits for workers to finish their current request before finishing.&lt;/li&gt;
-&lt;li&gt;USR2 - reexecute the running binary. A separate QUIT should be sent to the original process once the child is verified to be up and running.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/blockquote&gt;
-&lt;div class="highlight"&gt;&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;table class="rouge-table"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="rouge-gutter gl"&gt;&lt;pre class="lineno"&gt;1
-2
-&lt;/pre&gt;&lt;/td&gt;&lt;td class="rouge-code"&gt;&lt;pre&gt;&lt;span class="n"&gt;unicorn_pid&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;shared_path&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;/pids/unicorn.pid"&lt;/span&gt;
-&lt;span class="nb"&gt;test&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;s&lt;/span&gt; &lt;span class="n"&gt;unicorn_pid&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;kill&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="no"&gt;USR2&lt;/span&gt; &lt;span class="sb"&gt;`cat &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;unicorn_pid&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;当然，这只是针对的仅有代码修改的部署。如果牵扯到数据库迁移，就不能简单的这样处理，因为数据库是在新旧worker之间共享的。不过也可以通过迁移脚本来尽可以达到这个目的，这就是另一个话题了。&lt;/p&gt;
-
-&lt;h3&gt;Nginx&lt;/h3&gt;
-
-&lt;p&gt;Nginx是一个http服务器和反向代理服务器，功能强大，而且配置起来并不复杂。下面简单介绍一下其中的几个主要概念。&lt;/p&gt;
-
-&lt;h4&gt;upstream&lt;/h4&gt;
-
-&lt;p&gt;它定义了一组server，可以通过unix的socket，也可以是domain name或者IP地址。这里使用那种方式需要根据与unicorn设置的配合来确定，如果在unicorn中设置了listen某个端口，则nginx也要使用端口，如果unicorn中设置了listen某个socket，则unicorn中就要指定socket的位置，这个就是ngxin与unicorn通信的地方。
-upstream除了可以定义server的地址以外，还可以作为进行负载均衡的设定。通过设置weight来改变默认的权重，也可以使用默认的方法，例如least&lt;em&gt;conn来设定使用连接最少的server，ip&lt;/em&gt;hash来设定将同一个ip的request发送给同一个server。&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre class="highlight nginx"&gt;&lt;code&gt;&lt;table class="rouge-table"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="rouge-gutter gl"&gt;&lt;pre class="lineno"&gt;1
-2
-3
-4
-5
-&lt;/pre&gt;&lt;/td&gt;&lt;td class="rouge-code"&gt;&lt;pre&gt;&lt;span class="k"&gt;upstream&lt;/span&gt; &lt;span class="s"&gt;example&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-    &lt;span class="kn"&gt;server&lt;/span&gt; &lt;span class="s"&gt;backend1.example.com&lt;/span&gt; &lt;span class="s"&gt;weight=5&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-    &lt;span class="kn"&gt;server&lt;/span&gt; &lt;span class="nf"&gt;127.0.0.1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;8080&lt;/span&gt;       &lt;span class="s"&gt;max_fails=3&lt;/span&gt; &lt;span class="s"&gt;fail_timeout=30s&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-    &lt;span class="kn"&gt;server&lt;/span&gt; &lt;span class="s"&gt;unix:/var/apps/example/tmp/sockets/unicorn.sock&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;span class="p"&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="highlight"&gt;&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;table class="rouge-table"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="rouge-gutter gl"&gt;&lt;pre class="lineno"&gt;1
-2
-3
-&lt;/pre&gt;&lt;/td&gt;&lt;td class="rouge-code"&gt;&lt;pre&gt;&lt;span class="c1"&gt;#unicorn.rb&lt;/span&gt;
-&lt;span class="n"&gt;listen&lt;/span&gt; &lt;span class="mi"&gt;8090&lt;/span&gt;
-&lt;span class="n"&gt;listen&lt;/span&gt; &lt;span class="no"&gt;APP_ROOT&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="s2"&gt;"/tmp/sockets/unicorn.sock"&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h3&gt;server&lt;/h3&gt;
-
-&lt;p&gt;它定义了一个虚拟的server，下面的配置定义都非常表意，需要注意的时proxy_pass，这里使用了上面定义的upstream，也就是将所有的请求都转向到example这一组server上。
-nginx在处理request时是有一定顺序的，例如下面的定义中，nginx会检测request header中的HOST是example.com还是example.net来匹配不同的server。而在匹配的server中，还会根据location的设置来匹配不同的设置，例如请求的是example.com/test.gif，则会匹配第二个location，从而在增加一个30天的过期时间。&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre class="highlight nginx"&gt;&lt;code&gt;&lt;table class="rouge-table"&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="rouge-gutter gl"&gt;&lt;pre class="lineno"&gt;1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-&lt;/pre&gt;&lt;/td&gt;&lt;td class="rouge-code"&gt;&lt;pre&gt;&lt;span class="k"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-        &lt;span class="kn"&gt;listen&lt;/span&gt; &lt;span class="mi"&gt;80&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="kn"&gt;server_name&lt;/span&gt; &lt;span class="s"&gt;example.com&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="kn"&gt;root&lt;/span&gt; &lt;span class="n"&gt;/var/apps/example/current/public&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="kn"&gt;index&lt;/span&gt; &lt;span class="s"&gt;index.html&lt;/span&gt; &lt;span class="s"&gt;index.htm&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-
-        &lt;span class="kn"&gt;access_log&lt;/span&gt; &lt;span class="n"&gt;/var/log/nginx/example_access.log&lt;/span&gt; &lt;span class="s"&gt;info&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="kn"&gt;error_log&lt;/span&gt; &lt;span class="n"&gt;/var/log/nginx/example_error.log&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-
-        &lt;span class="kn"&gt;location&lt;/span&gt; &lt;span class="n"&gt;/&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-          &lt;span class="kn"&gt;proxy_pass&lt;/span&gt; &lt;span class="s"&gt;http://example&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="p"&gt;}&lt;/span&gt;
-        &lt;span class="kn"&gt;location&lt;/span&gt; &lt;span class="p"&gt;~&lt;/span&gt;&lt;span class="sr"&gt;*&lt;/span&gt; &lt;span class="err"&gt;\&lt;/span&gt;&lt;span class="s"&gt;.(gif|jpg|png)&lt;/span&gt;$ &lt;span class="p"&gt;{&lt;/span&gt;
-          &lt;span class="kn"&gt;root&lt;/span&gt; &lt;span class="n"&gt;/var/apps/example/current/public&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-          &lt;span class="kn"&gt;expires&lt;/span&gt; &lt;span class="s"&gt;30d&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="p"&gt;}&lt;/span&gt;
-&lt;span class="p"&gt;}&lt;/span&gt;
-&lt;span class="k"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-        &lt;span class="kn"&gt;listen&lt;/span&gt; &lt;span class="mi"&gt;80&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-        &lt;span class="kn"&gt;server_name&lt;/span&gt; &lt;span class="s"&gt;example.net&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;span class="p"&gt;}&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;上面只是简单介绍了一下unicorn和ngxin如何工作以及如何配置，下面的一些文章有更详细的介绍：&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="http://sirupsen.com/setting-up-unicorn-with-nginx"&gt;http://sirupsen.com/setting-up-unicorn-with-nginx&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://blog.engineyard.com/2010/everything-you-need-to-know-about-unicorn"&gt;https://blog.engineyard.com/2010/everything-you-need-to-know-about-unicorn&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://github.com/blog/517-unicorn"&gt;https://github.com/blog/517-unicorn&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="http://tomayko.com/writings/unicorn-is-unix"&gt;http://tomayko.com/writings/unicorn-is-unix&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="http://nginx.org/en/docs/http/ngx_http_upstream_module.html"&gt;http://nginx.org/en/docs/http/ngx&lt;em&gt;http&lt;/em&gt;upstream_module.html&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="http://nginx.org/en/docs/http/request_processing.html"&gt;http://nginx.org/en/docs/http/request_processing.html&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </content>
   </entry>
